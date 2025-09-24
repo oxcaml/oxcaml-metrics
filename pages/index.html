@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OxCAML Metrics Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OxCAML Metrics Dashboard</h1>
+            <div id="status" class="status"></div>
+        </header>
+
+        <main>
+            <section class="chart-section">
+                <h2>File Sizes by Extension (Raw Data)</h2>
+                <div class="chart-container">
+                    <canvas id="stackedBarChart"></canvas>
+                </div>
+            </section>
+
+            <section class="chart-section">
+                <h2>File Size Trends (Normalized)</h2>
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/data-loader.js"></script>
+    <script src="js/data-processor.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
