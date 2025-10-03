@@ -182,7 +182,7 @@ main {
 }
 
 #dataTable th:nth-child(2) {
-    width: 100px;
+    width: 200px;
 }
 
 #dataTable td {
