@@ -11,10 +11,20 @@ class TableManager {
             return;
         }
 
+        if (!processedData || !processedData.processed || !processedData.processed.data) {
+            console.error('Invalid data structure:', processedData);
+            return;
+        }
+
         const { data } = processedData.processed;
 
         // Clear existing content
         this.tableBody.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            console.warn('No data to display in table');
+            return;
+        }
 
         // Iterate through data and create rows
         data.forEach((entry, index) => {
