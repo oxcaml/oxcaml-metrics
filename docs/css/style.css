@@ -153,6 +153,73 @@ main {
     }
 }
 
+/* Table styles */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+#dataTable thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+#dataTable th {
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+}
+
+#dataTable th:nth-child(1) {
+    width: 80px;
+}
+
+#dataTable th:nth-child(2) {
+    width: 100px;
+}
+
+#dataTable td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+#dataTable tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+#dataTable td:nth-child(1) {
+    font-weight: 500;
+    color: #1565c0;
+    cursor: pointer;
+}
+
+#dataTable td:nth-child(1):hover {
+    text-decoration: underline;
+}
+
+#dataTable td:nth-child(2) {
+    font-family: 'Courier New', monospace;
+}
+
+#dataTable td:nth-child(2).positive {
+    color: #d32f2f;
+}
+
+#dataTable td:nth-child(2).negative {
+    color: #388e3c;
+}
+
+#dataTable td:nth-child(2).neutral {
+    color: #757575;
+}
+
 /* Print styles */
 @media print {
     body {
