@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const dataLoader = new DataLoader();
+    const notesLoader = new NotesLoader();
     const chartManager = new ChartManager();
     const tableManager = new TableManager();
 
     try {
         // Initialize and load data
         const rawData = await dataLoader.initialize();
+
+        // Load notes
+        await notesLoader.loadNotes();
 
         // Process data
         const dataProcessor = new DataProcessor(rawData);
@@ -17,8 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Create charts
         chartManager.createCharts(chartData);
 
-        // Create table
-        tableManager.createTable(processedData);
+        // Create table with notes
+        tableManager.createTable(processedData, notesLoader);
 
         // Display summary stats
         const stats = dataProcessor.getSummaryStats();

@@ -1,9 +1,11 @@
 class TableManager {
     constructor() {
         this.tableBody = null;
+        this.notesLoader = null;
     }
 
-    createTable(processedData) {
+    createTable(processedData, notesLoader) {
+        this.notesLoader = notesLoader;
         this.tableBody = document.getElementById('dataTableBody');
 
         if (!this.tableBody) {
@@ -72,9 +74,10 @@ class TableManager {
                 changeCell.textContent = `${sign}${changePercent.toFixed(2)}%`;
             }
 
-            // Create note cell (placeholder)
+            // Create note cell
             const noteCell = document.createElement('td');
-            noteCell.textContent = '';
+            const note = this.notesLoader ? this.notesLoader.getNote(entry.pr_number) : null;
+            noteCell.textContent = note || '—';
 
             row.appendChild(prCell);
             row.appendChild(changeCell);
