@@ -26,6 +26,7 @@ class DataProcessor {
                 grouped.set(timestamp, {
                     timestamp: timestamp,
                     commit_hash: row.commit_hash,
+                    pr_number: row.pr_number,
                     date: new Date(timestamp),
                     extensions: new Map()
                 });
@@ -98,6 +99,7 @@ class DataProcessor {
             return {
                 timestamp: entry.timestamp,
                 commit_hash: entry.commit_hash,
+                pr_number: entry.pr_number,
                 date: entry.date,
                 extensions: normalizedExtensions
             };
@@ -124,15 +126,7 @@ class DataProcessor {
     getStackedBarChartData() {
         const { data, extensions } = this.processedData;
 
-        const labels = data.map(entry => {
-            const date = new Date(entry.timestamp);
-            return date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        });
+        const labels = data.map(entry => `PR #${entry.pr_number}`);
 
         const colors = this.generateColors(extensions.length);
 
@@ -147,22 +141,16 @@ class DataProcessor {
         return {
             labels: labels,
             datasets: datasets,
-            commits: data.map(entry => entry.commit_hash)
+            commits: data.map(entry => entry.commit_hash),
+            prNumbers: data.map(entry => entry.pr_number),
+            timestamps: data.map(entry => entry.timestamp)
         };
     }
 
     getLineChartData() {
         const { data, extensions } = this.normalizedData;
 
-        const labels = data.map(entry => {
-            const date = new Date(entry.timestamp);
-            return date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        });
+        const labels = data.map(entry => `PR #${entry.pr_number}`);
 
         const colors = this.generateColors(extensions.length);
 
@@ -180,7 +168,9 @@ class DataProcessor {
         return {
             labels: labels,
             datasets: datasets,
-            commits: data.map(entry => entry.commit_hash)
+            commits: data.map(entry => entry.commit_hash),
+            prNumbers: data.map(entry => entry.pr_number),
+            timestamps: data.map(entry => entry.timestamp)
         };
     }
 
@@ -220,6 +210,7 @@ class DataProcessor {
             totalFiles: extensions.length,
             totalSize: totalSize,
             latestCommit: latest.commit_hash.substring(0, 8),
+            latestPrNumber: latest.pr_number,
             latestTimestamp: latest.timestamp,
             dataPoints: data.length
         };

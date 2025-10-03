@@ -30,7 +30,7 @@ class ChartManager {
                         stacked: true,
                         title: {
                             display: true,
-                            text: 'Timestamp'
+                            text: 'Pull Request'
                         }
                     },
                     y: {
@@ -57,9 +57,10 @@ class ChartManager {
                         callbacks: {
                             title: (tooltipItems) => {
                                 const index = tooltipItems[0].dataIndex;
+                                const prNumber = data.prNumbers[index];
                                 const commit = data.commits[index];
-                                const timestamp = data.labels[index];
-                                return `${timestamp}\nCommit: ${commit.substring(0, 8)}`;
+                                const timestamp = data.timestamps[index];
+                                return `PR #${prNumber}\nCommit: ${commit.substring(0, 8)}\n${timestamp}`;
                             },
                             label: (context) => {
                                 const label = context.dataset.label || '';
@@ -104,7 +105,7 @@ class ChartManager {
                     x: {
                         title: {
                             display: true,
-                            text: 'Timestamp'
+                            text: 'Pull Request'
                         }
                     },
                     y: {
@@ -130,9 +131,10 @@ class ChartManager {
                         callbacks: {
                             title: (tooltipItems) => {
                                 const index = tooltipItems[0].dataIndex;
+                                const prNumber = data.prNumbers[index];
                                 const commit = data.commits[index];
-                                const timestamp = data.labels[index];
-                                return `${timestamp}\nCommit: ${commit.substring(0, 8)}`;
+                                const timestamp = data.timestamps[index];
+                                return `PR #${prNumber}\nCommit: ${commit.substring(0, 8)}\n${timestamp}`;
                             },
                             label: (context) => {
                                 const label = context.dataset.label || '';
