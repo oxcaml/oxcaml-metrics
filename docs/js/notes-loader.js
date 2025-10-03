@@ -1,18 +1,29 @@
 class NotesLoader {
-    constructor() {
+    constructor(owner, repo) {
         this.notes = new Map();
+        this.baseURL = 'https://api.github.com/repos';
+        this.owner = owner;
+        this.repo = repo;
     }
 
     async loadNotes() {
         try {
-            const response = await fetch('../notes/size-changes.txt');
+            const url = `${this.baseURL}/${this.owner}/${this.repo}/contents/notes/size-changes.txt`;
+            const response = await fetch(url);
 
             if (!response.ok) {
-                console.warn('Notes file not found or not accessible');
+                if (response.status === 404) {
+                    console.warn('Notes file not found');
+                } else {
+                    console.warn(`Failed to load notes: ${response.status} ${response.statusText}`);
+                }
                 return this.notes;
             }
 
-            const text = await response.text();
+            const data = await response.json();
+
+            // GitHub API returns base64 encoded content
+            const text = atob(data.content);
             this.parseNotes(text);
 
             return this.notes;

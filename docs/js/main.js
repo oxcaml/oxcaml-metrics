@@ -1,12 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const dataLoader = new DataLoader();
-    const notesLoader = new NotesLoader();
     const chartManager = new ChartManager();
     const tableManager = new TableManager();
 
     try {
         // Initialize and load data
         const rawData = await dataLoader.initialize();
+
+        // Create notes loader with same owner/repo
+        const notesLoader = new NotesLoader(dataLoader.owner, dataLoader.repo);
 
         // Load notes
         await notesLoader.loadNotes();
