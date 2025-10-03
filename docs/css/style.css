@@ -191,7 +191,19 @@ main {
 }
 
 #dataTable tbody tr:hover {
-    background-color: #f8f9fa;
+    opacity: 0.8;
+}
+
+#dataTable tbody tr.positive {
+    background-color: #ffebee;
+}
+
+#dataTable tbody tr.negative {
+    background-color: #e8f5e9;
+}
+
+#dataTable tbody tr.neutral {
+    background-color: #f5f5f5;
 }
 
 #dataTable td:nth-child(1) {
@@ -206,18 +218,6 @@ main {
 
 #dataTable td:nth-child(2) {
     font-family: 'Courier New', monospace;
-}
-
-#dataTable td:nth-child(2).positive {
-    color: #d32f2f;
-}
-
-#dataTable td:nth-child(2).negative {
-    color: #388e3c;
-}
-
-#dataTable td:nth-child(2).neutral {
-    color: #757575;
 }
 
 /* Print styles */

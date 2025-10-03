@@ -51,6 +51,9 @@ class TableManager {
                 }
             }
 
+            // Apply class to the row
+            row.className = changeClass;
+
             // Create PR number cell (clickable)
             const prCell = document.createElement('td');
             prCell.textContent = `#${entry.pr_number}`;
@@ -62,7 +65,6 @@ class TableManager {
 
             // Create change percentage cell
             const changeCell = document.createElement('td');
-            changeCell.className = changeClass;
             if (changePercent === null) {
                 changeCell.textContent = '—';
             } else {
