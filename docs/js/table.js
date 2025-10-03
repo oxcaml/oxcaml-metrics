@@ -45,9 +45,9 @@ class TableManager {
                 if (prevTotalSize > 0) {
                     changePercent = ((totalSize - prevTotalSize) / prevTotalSize) * 100;
 
-                    if (changePercent > 0.01) {
+                    if (changePercent > 2.50) {
                         changeClass = 'positive';
-                    } else if (changePercent < -0.01) {
+                    } else if (changePercent < -2.50) {
                         changeClass = 'negative';
                     }
                 }
