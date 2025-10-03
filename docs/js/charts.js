@@ -30,7 +30,7 @@ class ChartManager {
                         stacked: true,
                         title: {
                             display: true,
-                            text: 'Pull Request'
+                            text: 'Pull Request (click to open)'
                         }
                     },
                     y: {
@@ -80,6 +80,14 @@ class ChartManager {
                 interaction: {
                     mode: 'index',
                     intersect: false
+                },
+                onClick: (event, activeElements) => {
+                    if (activeElements.length > 0) {
+                        const index = activeElements[0].index;
+                        const prNumber = data.prNumbers[index];
+                        const prUrl = `https://github.com/oxcaml/oxcaml/pull/${prNumber}`;
+                        window.open(prUrl, '_blank');
+                    }
                 }
             }
         });
@@ -105,7 +113,7 @@ class ChartManager {
                     x: {
                         title: {
                             display: true,
-                            text: 'Pull Request'
+                            text: 'Pull Request (click to open)'
                         }
                     },
                     y: {
@@ -147,6 +155,14 @@ class ChartManager {
                 interaction: {
                     mode: 'index',
                     intersect: false
+                },
+                onClick: (event, activeElements) => {
+                    if (activeElements.length > 0) {
+                        const index = activeElements[0].index;
+                        const prNumber = data.prNumbers[index];
+                        const prUrl = `https://github.com/oxcaml/oxcaml/pull/${prNumber}`;
+                        window.open(prUrl, '_blank');
+                    }
                 }
             }
         });
