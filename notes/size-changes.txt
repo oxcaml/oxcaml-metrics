@@ -1,0 +1,2 @@
+4766: hints removed from modes
+4804: "-g" flag added to default flags
