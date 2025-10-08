@@ -1,5 +1,7 @@
 // Register the annotation plugin
-Chart.register(ChartAnnotation);
+if (typeof chartjs_plugin_annotation !== 'undefined') {
+    Chart.register(chartjs_plugin_annotation.default || chartjs_plugin_annotation);
+}
 
 class ChartManager {
     constructor() {
