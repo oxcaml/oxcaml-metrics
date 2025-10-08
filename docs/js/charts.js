@@ -1,12 +1,61 @@
+// Register the annotation plugin
+Chart.register(ChartAnnotation);
+
 class ChartManager {
     constructor() {
         this.stackedBarChart = null;
         this.lineChart = null;
+        this.versionTags = null;
+    }
+
+    setVersionTags(versionTags) {
+        this.versionTags = versionTags;
     }
 
     createCharts(chartData) {
         this.createStackedBarChart(chartData.raw);
         this.createLineChart(chartData.normalized);
+    }
+
+    createAnnotationsForChart(prNumbers) {
+        if (!this.versionTags || this.versionTags.size === 0) {
+            return {};
+        }
+
+        const annotations = {};
+
+        // Iterate through version tags and find matching PR positions
+        this.versionTags.forEach((prNumber, versionTag) => {
+            const prIndex = prNumbers.findIndex(pr => String(pr) === String(prNumber));
+
+            if (prIndex !== -1) {
+                // Draw line after this PR (between this PR and the next one)
+                const annotationKey = `version-${versionTag}`;
+                annotations[annotationKey] = {
+                    type: 'line',
+                    xMin: prIndex + 0.5,
+                    xMax: prIndex + 0.5,
+                    borderColor: '#e74c3c',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    label: {
+                        display: true,
+                        content: versionTag,
+                        position: 'start',
+                        backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                        color: 'white',
+                        font: {
+                            size: 11,
+                            weight: 'bold'
+                        },
+                        padding: 4,
+                        rotation: -90
+                    }
+                };
+            }
+        });
+
+        return annotations;
     }
 
     createStackedBarChart(data) {
@@ -43,6 +92,9 @@ class ChartManager {
                     }
                 },
                 plugins: {
+                    annotation: {
+                        annotations: this.createAnnotationsForChart(data.prNumbers)
+                    },
                     title: {
                         display: true,
                         text: 'File Sizes by Extension Over Time'
@@ -125,6 +177,9 @@ class ChartManager {
                     }
                 },
                 plugins: {
+                    annotation: {
+                        annotations: this.createAnnotationsForChart(data.prNumbers)
+                    },
                     title: {
                         display: true,
                         text: 'File Size Trends (Normalized to First Non-Zero Value)'

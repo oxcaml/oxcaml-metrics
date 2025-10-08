@@ -10,8 +10,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Create notes loader with same owner/repo
         const notesLoader = new NotesLoader(dataLoader.owner, dataLoader.repo);
 
-        // Load notes
+        // Load notes and version tags
         await notesLoader.loadNotes();
+        await notesLoader.loadVersionTags();
 
         // Process data
         const dataProcessor = new DataProcessor(rawData);
@@ -19,6 +20,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Get chart data
         const chartData = dataProcessor.getChartData();
+
+        // Set version tags for chart annotations
+        chartManager.setVersionTags(notesLoader.versionTags);
 
         // Create charts
         chartManager.createCharts(chartData);
