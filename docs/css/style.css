@@ -87,6 +87,32 @@ main {
 }
 
 /* Responsive design */
+@media (min-width: 1800px) {
+    .container {
+        max-width: 1600px;
+    }
+
+    h1 {
+        font-size: 3rem;
+    }
+
+    .chart-section h2 {
+        font-size: 1.75rem;
+    }
+
+    body {
+        font-size: 1.1rem;
+    }
+
+    .status {
+        font-size: 1.1rem;
+    }
+
+    #dataTable {
+        font-size: 1.05rem;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 10px;
