@@ -271,6 +271,17 @@ main {
     background-color: #f5f5f5;
 }
 
+#dataTable tbody tr.version-tag-row {
+    background-color: #ffeaa7;
+    border-top: 2px solid #fdcb6e;
+    border-bottom: 2px solid #fdcb6e;
+}
+
+#dataTable tbody tr.version-tag-row td {
+    padding: 12px 8px;
+    color: #2d3436;
+}
+
 #dataTable td:nth-child(1) {
     font-weight: 500;
     color: #1565c0;

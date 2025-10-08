@@ -84,6 +84,46 @@ class TableManager {
             row.appendChild(noteCell);
 
             this.tableBody.appendChild(row);
+
+            // Check if this PR has a version tag
+            if (this.notesLoader && this.notesLoader.versionTags) {
+                const versionTag = this.findVersionTagForPR(entry.pr_number);
+                if (versionTag) {
+                    const versionRow = this.createVersionTagRow(versionTag);
+                    this.tableBody.appendChild(versionRow);
+                }
+            }
         });
+    }
+
+    findVersionTagForPR(prNumber) {
+        if (!this.notesLoader || !this.notesLoader.versionTags) {
+            return null;
+        }
+
+        // Search through version tags to find one matching this PR
+        for (const [versionTag, taggedPR] of this.notesLoader.versionTags) {
+            if (String(taggedPR) === String(prNumber)) {
+                return versionTag;
+            }
+        }
+
+        return null;
+    }
+
+    createVersionTagRow(versionTag) {
+        const row = document.createElement('tr');
+        row.className = 'version-tag-row';
+
+        // Create a single cell that spans all three columns
+        const cell = document.createElement('td');
+        cell.colSpan = 3;
+        cell.textContent = `Version: ${versionTag}`;
+        cell.style.textAlign = 'center';
+        cell.style.fontWeight = 'bold';
+
+        row.appendChild(cell);
+
+        return row;
     }
 }
