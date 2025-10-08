@@ -282,6 +282,10 @@ main {
     color: #2d3436;
 }
 
+#dataTable tbody tr.version-tag-row a:hover {
+    text-decoration: underline;
+}
+
 #dataTable td:nth-child(1) {
     font-weight: 500;
     color: #1565c0;

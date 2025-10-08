@@ -118,10 +118,18 @@ class TableManager {
         // Create a single cell that spans all three columns
         const cell = document.createElement('td');
         cell.colSpan = 3;
-        cell.textContent = `Version: ${versionTag}`;
         cell.style.textAlign = 'center';
         cell.style.fontWeight = 'bold';
 
+        // Create a link to the version tag
+        const link = document.createElement('a');
+        link.href = `https://github.com/oxcaml/oxcaml/tree/${versionTag}`;
+        link.textContent = `Version: ${versionTag}`;
+        link.target = '_blank';
+        link.style.color = 'inherit';
+        link.style.textDecoration = 'none';
+
+        cell.appendChild(link);
         row.appendChild(cell);
 
         return row;
