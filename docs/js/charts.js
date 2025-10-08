@@ -52,10 +52,6 @@ class ChartManager {
                         },
                         padding: 4,
                         rotation: -90
-                    },
-                    click: () => {
-                        const url = `https://github.com/oxcaml/oxcaml/tree/${versionTag}`;
-                        window.open(url, '_blank');
                     }
                 };
             }
