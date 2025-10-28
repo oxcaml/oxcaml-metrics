@@ -18,9 +18,14 @@ class DataProcessor {
         const grouped = new Map();
 
         this.rawData.forEach(row => {
+            // Only process rows with kind='size_in_bytes'
+            if (row.kind !== 'size_in_bytes') {
+                return;
+            }
+
             const timestamp = row.timestamp;
-            const extension = row.extension;
-            const size = row.total_size_bytes;
+            const extension = row.name;
+            const size = row.value;
 
             if (!grouped.has(timestamp)) {
                 grouped.set(timestamp, {

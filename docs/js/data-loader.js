@@ -120,7 +120,7 @@ class DataLoader {
                     skipEmptyLines: true,
                     transform: (value, field) => {
                         // Convert numeric fields
-                        if (field === 'total_size_bytes') {
+                        if (field === 'value') {
                             return parseInt(value) || 0;
                         }
                         return value;
