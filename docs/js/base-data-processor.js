@@ -60,7 +60,10 @@ class BaseDataProcessor {
         });
 
         // Ensure all entries have all items (fill missing with 0)
-        const itemList = Array.from(allItems).sort();
+        // Sort case-insensitively for consistent ordering
+        const itemList = Array.from(allItems).sort((a, b) =>
+            a.toLowerCase().localeCompare(b.toLowerCase())
+        );
         result.forEach(entry => {
             itemList.forEach(item => {
                 if (!entry[dataKey].has(item)) {
