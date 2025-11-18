@@ -1,0 +1,102 @@
+name: Process Metrics
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  process-metrics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need at least 2 commits to see what changed
+
+      - name: Check if this is a metrics commit
+        id: check
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "Commit message: $COMMIT_MSG"
+
+          # Check if commit message starts with "Add metrics for commit"
+          if [[ ! "$COMMIT_MSG" =~ ^"Add metrics for commit" ]]; then
+            echo "Not a metrics commit, skipping"
+            echo "should_process=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Get the list of added files in this commit
+          ADDED_FILES=$(git diff-tree --no-commit-id --name-only --diff-filter=A -r HEAD)
+          echo "Added files:"
+          echo "$ADDED_FILES"
+
+          # Check for artifact-sizes file
+          ARTIFACT_FILE=$(echo "$ADDED_FILES" | grep '^raw-data/artifact-sizes-.*\.csv$' || true)
+          # Check for profiles file
+          PROFILE_FILE=$(echo "$ADDED_FILES" | grep '^raw-data/profiles-.*\.tar\.gz$' || true)
+
+          if [[ -z "$ARTIFACT_FILE" || -z "$PROFILE_FILE" ]]; then
+            echo "Missing required files (artifact-sizes or profiles), skipping"
+            echo "should_process=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Found artifact file: $ARTIFACT_FILE"
+          echo "Found profile file: $PROFILE_FILE"
+          echo "should_process=true" >> $GITHUB_OUTPUT
+          echo "artifact_file=$ARTIFACT_FILE" >> $GITHUB_OUTPUT
+          echo "profile_file=$PROFILE_FILE" >> $GITHUB_OUTPUT
+
+      - name: Run conversion script
+        if: steps.check.outputs.should_process == 'true'
+        id: convert
+        run: |
+          python3 scripts/convert_metrics.py \
+            --artifact-sizes "${{ steps.check.outputs.artifact_file }}" \
+            --profiles "${{ steps.check.outputs.profile_file }}" \
+            --output-dir data/
+
+          if [ $? -ne 0 ]; then
+            echo "conversion_failed=true" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          echo "conversion_failed=false" >> $GITHUB_OUTPUT
+
+      - name: Commit processed metrics
+        if: steps.check.outputs.should_process == 'true' && steps.convert.outputs.conversion_failed == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add data/
+
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "Add processed metrics for commit ${{ steps.check.outputs.commit_hash }}"
+          git push
+
+      - name: Create issue on failure
+        if: failure() && steps.check.outputs.should_process == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Metrics processing failed for commit ${{ steps.check.outputs.commit_hash }}',
+              body: `The automated metrics processing workflow failed.
+
+              **Commit:** ${{ github.sha }}
+              **Artifact file:** ${{ steps.check.outputs.artifact_file }}
+              **Profile file:** ${{ steps.check.outputs.profile_file }}
+
+              Please check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.`,
+              labels: ['automation', 'metrics']
+            });
