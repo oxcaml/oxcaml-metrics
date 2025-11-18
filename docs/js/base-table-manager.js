@@ -1,15 +1,19 @@
-class TableManager {
-    constructor() {
+class BaseTableManager {
+    constructor(config) {
         this.tableBody = null;
         this.notesLoader = null;
+        this.config = config;
+        // config should contain:
+        // - tableBodyId: ID of tbody element
+        // - dataKey: 'extensions' or 'counters' (name of the field)
     }
 
     createTable(processedData, notesLoader) {
         this.notesLoader = notesLoader;
-        this.tableBody = document.getElementById('dataTableBody');
+        this.tableBody = document.getElementById(this.config.tableBodyId);
 
         if (!this.tableBody) {
-            console.error('Table body element not found');
+            console.error(`Table body element '${this.config.tableBodyId}' not found`);
             return;
         }
 
@@ -19,12 +23,13 @@ class TableManager {
         }
 
         const { data } = processedData.processed;
+        const dataKey = this.config.dataKey;
 
         // Clear existing content
         this.tableBody.innerHTML = '';
 
         if (!data || data.length === 0) {
-            console.warn('No data to display in table');
+            console.warn(`No data to display in table for ${dataKey}`);
             return;
         }
 
@@ -32,18 +37,18 @@ class TableManager {
         data.forEach((entry, index) => {
             const row = document.createElement('tr');
 
-            // Calculate total size for this entry
-            const totalSize = Array.from(entry.extensions.values()).reduce((sum, size) => sum + size, 0);
+            // Calculate total value for this entry
+            const totalValue = Array.from(entry[dataKey].values()).reduce((sum, value) => sum + value, 0);
 
             // Calculate percentage change from previous entry
             let changePercent = null;
             let changeClass = 'neutral';
             if (index > 0) {
                 const prevEntry = data[index - 1];
-                const prevTotalSize = Array.from(prevEntry.extensions.values()).reduce((sum, size) => sum + size, 0);
+                const prevTotalValue = Array.from(prevEntry[dataKey].values()).reduce((sum, value) => sum + value, 0);
 
-                if (prevTotalSize > 0) {
-                    changePercent = ((totalSize - prevTotalSize) / prevTotalSize) * 100;
+                if (prevTotalValue > 0) {
+                    changePercent = ((totalValue - prevTotalValue) / prevTotalValue) * 100;
 
                     if (changePercent > 2.50) {
                         changeClass = 'positive';

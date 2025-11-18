@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const dataLoader = new DataLoader();
-    const chartManager = new ChartManager();
-    const tableManager = new TableManager();
+    const artifactChartManager = new ArtifactChartManager();
+    const artifactTableManager = new ArtifactTableManager();
     const counterChartManager = new CounterChartManager();
     const counterTableManager = new CounterTableManager();
 
@@ -17,23 +17,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         await notesLoader.loadVersionTags();
 
         // Process artifact size data
-        const dataProcessor = new DataProcessor(rawData);
-        const processedData = dataProcessor.process();
+        const artifactDataProcessor = new ArtifactDataProcessor(rawData);
+        const processedData = artifactDataProcessor.process();
 
         // Get chart data for artifact sizes
-        const chartData = dataProcessor.getChartData();
+        const chartData = artifactDataProcessor.getChartData();
 
         // Set version tags for chart annotations
-        chartManager.setVersionTags(notesLoader.versionTags);
+        artifactChartManager.setVersionTags(notesLoader.versionTags);
 
         // Create artifact size charts
-        chartManager.createCharts(chartData);
+        artifactChartManager.createCharts(chartData);
 
         // Create artifact size table with notes
-        tableManager.createTable(processedData, notesLoader);
+        artifactTableManager.createTable(processedData, notesLoader);
 
         // Display summary stats for artifact sizes
-        const stats = dataProcessor.getSummaryStats();
+        const stats = artifactDataProcessor.getSummaryStats();
         if (stats) {
             console.log('Artifact Size Statistics:', stats);
         }

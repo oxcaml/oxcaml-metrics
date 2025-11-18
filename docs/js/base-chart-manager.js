@@ -1,13 +1,17 @@
-// Register the annotation plugin
-if (typeof chartjs_plugin_annotation !== 'undefined') {
-    Chart.register(chartjs_plugin_annotation.default || chartjs_plugin_annotation);
-}
-
-class ChartManager {
-    constructor() {
+class BaseChartManager {
+    constructor(config) {
         this.stackedBarChart = null;
         this.lineChart = null;
         this.versionTags = null;
+        this.config = config;
+        // config should contain:
+        // - stackedBarCanvasId: ID of canvas element for stacked bar chart
+        // - lineCanvasId: ID of canvas element for line chart
+        // - stackedBarTitle: Title for stacked bar chart
+        // - lineChartTitle: Title for line chart
+        // - yAxisLabel: Label for Y axis in stacked bar chart
+        // - normalizedYAxisLabel: Label for Y axis in line chart
+        // - formatValueFn: Function to format values in tooltips
     }
 
     setVersionTags(versionTags) {
@@ -61,7 +65,7 @@ class ChartManager {
     }
 
     createStackedBarChart(data) {
-        const ctx = document.getElementById('stackedBarChart').getContext('2d');
+        const ctx = document.getElementById(this.config.stackedBarCanvasId).getContext('2d');
 
         if (this.stackedBarChart) {
             this.stackedBarChart.destroy();
@@ -88,7 +92,7 @@ class ChartManager {
                         stacked: true,
                         title: {
                             display: true,
-                            text: 'File Size (bytes)'
+                            text: this.config.yAxisLabel
                         },
                         beginAtZero: true
                     }
@@ -99,7 +103,7 @@ class ChartManager {
                     },
                     title: {
                         display: true,
-                        text: 'File Sizes by Extension Over Time'
+                        text: this.config.stackedBarTitle
                     },
                     legend: {
                         display: true,
@@ -119,14 +123,14 @@ class ChartManager {
                             label: (context) => {
                                 const label = context.dataset.label || '';
                                 const value = context.parsed.y;
-                                return `${label}: ${this.formatBytes(value)}`;
+                                return `${label}: ${this.config.formatValueFn(value)}`;
                             },
                             afterBody: (tooltipItems) => {
                                 const index = tooltipItems[0].dataIndex;
                                 const total = data.datasets.reduce((sum, dataset) => {
                                     return sum + (dataset.data[index] || 0);
                                 }, 0);
-                                return `Total: ${this.formatBytes(total)}`;
+                                return `Total: ${this.config.formatValueFn(total)}`;
                             }
                         }
                     }
@@ -148,7 +152,7 @@ class ChartManager {
     }
 
     createLineChart(data) {
-        const ctx = document.getElementById('lineChart').getContext('2d');
+        const ctx = document.getElementById(this.config.lineCanvasId).getContext('2d');
 
         if (this.lineChart) {
             this.lineChart.destroy();
@@ -173,7 +177,7 @@ class ChartManager {
                     y: {
                         title: {
                             display: true,
-                            text: 'Relative Size (%)'
+                            text: this.config.normalizedYAxisLabel
                         },
                         beginAtZero: true
                     }
@@ -184,7 +188,7 @@ class ChartManager {
                     },
                     title: {
                         display: true,
-                        text: 'File Size Trends (Normalized to First Non-Zero Value)'
+                        text: this.config.lineChartTitle
                     },
                     legend: {
                         display: true,
@@ -223,16 +227,6 @@ class ChartManager {
                 }
             }
         });
-    }
-
-    formatBytes(bytes) {
-        if (bytes === 0) return '0 B';
-
-        const k = 1024;
-        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     }
 
     destroy() {

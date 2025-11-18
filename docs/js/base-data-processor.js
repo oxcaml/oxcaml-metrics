@@ -1,8 +1,13 @@
-class DataProcessor {
-    constructor(rawData) {
+class BaseDataProcessor {
+    constructor(rawData, config) {
         this.rawData = rawData;
         this.processedData = null;
         this.normalizedData = null;
+        this.config = config;
+        // config should contain:
+        // - filterFn: function to filter rows
+        // - dataKey: 'extensions' or 'counters' (name of the field)
+        // - colorPalette: array of colors or function to generate colors
     }
 
     process() {
@@ -16,53 +21,55 @@ class DataProcessor {
 
     groupDataByTimestamp() {
         const grouped = new Map();
+        const dataKey = this.config.dataKey;
 
         this.rawData.forEach(row => {
-            // Only process rows with kind='size_in_bytes'
-            if (row.kind !== 'size_in_bytes') {
+            // Use the configured filter function
+            if (!this.config.filterFn(row)) {
                 return;
             }
 
             const timestamp = row.timestamp;
-            const extension = row.name;
-            const size = row.value;
+            const itemName = row.name;
+            const value = row.value;
 
             if (!grouped.has(timestamp)) {
-                grouped.set(timestamp, {
+                const entry = {
                     timestamp: timestamp,
                     commit_hash: row.commit_hash,
                     pr_number: row.pr_number,
-                    date: new Date(timestamp),
-                    extensions: new Map()
-                });
+                    date: new Date(timestamp)
+                };
+                entry[dataKey] = new Map();
+                grouped.set(timestamp, entry);
             }
 
-            grouped.get(timestamp).extensions.set(extension, size);
+            grouped.get(timestamp)[dataKey].set(itemName, value);
         });
 
         // Convert to array and sort by date
         const result = Array.from(grouped.values())
             .sort((a, b) => a.date - b.date);
 
-        // Get all unique extensions
-        const allExtensions = new Set();
+        // Get all unique items
+        const allItems = new Set();
         result.forEach(entry => {
-            entry.extensions.forEach((size, ext) => allExtensions.add(ext));
+            entry[dataKey].forEach((value, item) => allItems.add(item));
         });
 
-        // Ensure all entries have all extensions (fill missing with 0)
-        const extensionList = Array.from(allExtensions).sort();
+        // Ensure all entries have all items (fill missing with 0)
+        const itemList = Array.from(allItems).sort();
         result.forEach(entry => {
-            extensionList.forEach(ext => {
-                if (!entry.extensions.has(ext)) {
-                    entry.extensions.set(ext, 0);
+            itemList.forEach(item => {
+                if (!entry[dataKey].has(item)) {
+                    entry[dataKey].set(item, 0);
                 }
             });
         });
 
         return {
             data: result,
-            extensions: extensionList
+            [dataKey]: itemList
         };
     }
 
@@ -71,48 +78,51 @@ class DataProcessor {
             return null;
         }
 
-        const { data, extensions } = this.processedData;
+        const { data } = this.processedData;
+        const dataKey = this.config.dataKey;
+        const items = this.processedData[dataKey];
 
-        // Find baseline values (first non-zero value for each extension)
+        // Find baseline values (first non-zero value for each item)
         const baselines = new Map();
 
-        extensions.forEach(ext => {
+        items.forEach(item => {
             for (const entry of data) {
-                const value = entry.extensions.get(ext);
+                const value = entry[dataKey].get(item);
                 if (value > 0) {
-                    baselines.set(ext, value);
+                    baselines.set(item, value);
                     break;
                 }
             }
             // If no non-zero value found, use 1 to avoid division by zero
-            if (!baselines.has(ext)) {
-                baselines.set(ext, 1);
+            if (!baselines.has(item)) {
+                baselines.set(item, 1);
             }
         });
 
         // Normalize data
         const normalizedData = data.map(entry => {
-            const normalizedExtensions = new Map();
+            const normalizedItems = new Map();
 
-            extensions.forEach(ext => {
-                const value = entry.extensions.get(ext);
-                const baseline = baselines.get(ext);
+            items.forEach(item => {
+                const value = entry[dataKey].get(item);
+                const baseline = baselines.get(item);
                 const normalizedValue = (value / baseline) * 100; // Convert to percentage
-                normalizedExtensions.set(ext, normalizedValue);
+                normalizedItems.set(item, normalizedValue);
             });
 
-            return {
+            const result = {
                 timestamp: entry.timestamp,
                 commit_hash: entry.commit_hash,
                 pr_number: entry.pr_number,
-                date: entry.date,
-                extensions: normalizedExtensions
+                date: entry.date
             };
+            result[dataKey] = normalizedItems;
+            return result;
         });
 
         return {
             data: normalizedData,
-            extensions: extensions,
+            [dataKey]: items,
             baselines: baselines
         };
     }
@@ -129,15 +139,17 @@ class DataProcessor {
     }
 
     getStackedBarChartData() {
-        const { data, extensions } = this.processedData;
+        const { data } = this.processedData;
+        const dataKey = this.config.dataKey;
+        const items = this.processedData[dataKey];
 
         const labels = data.map(entry => `PR #${entry.pr_number}`);
 
-        const colors = this.generateColors(extensions.length);
+        const colors = this.generateColors(items.length);
 
-        const datasets = extensions.map((ext, index) => ({
-            label: ext,
-            data: data.map(entry => entry.extensions.get(ext)),
+        const datasets = items.map((item, index) => ({
+            label: item,
+            data: data.map(entry => entry[dataKey].get(item)),
             backgroundColor: colors[index],
             borderColor: colors[index],
             borderWidth: 1
@@ -153,15 +165,17 @@ class DataProcessor {
     }
 
     getLineChartData() {
-        const { data, extensions } = this.normalizedData;
+        const { data } = this.normalizedData;
+        const dataKey = this.config.dataKey;
+        const items = this.normalizedData[dataKey];
 
         const labels = data.map(entry => `PR #${entry.pr_number}`);
 
-        const colors = this.generateColors(extensions.length);
+        const colors = this.generateColors(items.length);
 
-        const datasets = extensions.map((ext, index) => ({
-            label: ext,
-            data: data.map(entry => entry.extensions.get(ext)),
+        const datasets = items.map((item, index) => ({
+            label: item,
+            data: data.map(entry => entry[dataKey].get(item)),
             borderColor: colors[index],
             backgroundColor: colors[index] + '20', // Add transparency
             fill: false,
@@ -180,12 +194,8 @@ class DataProcessor {
     }
 
     generateColors(count) {
-        // D3 Chromatic schemePaired (12 colors) + black as 13th
-        const colors = [
-            '#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99',
-            '#e31a1c', '#fdbf6f', '#ff7f00', '#cab2d6', '#6a3d9a',
-            '#ffff99', '#b15928', '#000000'
-        ];
+        // Use the color palette from config
+        const colors = this.config.colorPalette.slice();
 
         // If we need more colors than predefined, generate them
         if (count > colors.length) {
@@ -203,18 +213,20 @@ class DataProcessor {
             return null;
         }
 
-        const { data, extensions } = this.processedData;
+        const { data } = this.processedData;
+        const dataKey = this.config.dataKey;
+        const items = this.processedData[dataKey];
 
         if (data.length === 0) {
             return null;
         }
 
         const latest = data[data.length - 1];
-        const totalSize = extensions.reduce((sum, ext) => sum + latest.extensions.get(ext), 0);
+        const total = items.reduce((sum, item) => sum + latest[dataKey].get(item), 0);
 
         return {
-            totalFiles: extensions.length,
-            totalSize: totalSize,
+            totalItems: items.length,
+            total: total,
             latestCommit: latest.commit_hash.substring(0, 8),
             latestPrNumber: latest.pr_number,
             latestTimestamp: latest.timestamp,
