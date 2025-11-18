@@ -6,6 +6,8 @@ class BaseTableManager {
         // config should contain:
         // - tableBodyId: ID of tbody element
         // - dataKey: 'extensions' or 'counters' (name of the field)
+        // - changeThreshold: (optional) percentage threshold for coloring rows, default 2.5
+        this.changeThreshold = config.changeThreshold || 2.5;
     }
 
     createTable(processedData, notesLoader) {
@@ -50,9 +52,9 @@ class BaseTableManager {
                 if (prevTotalValue > 0) {
                     changePercent = ((totalValue - prevTotalValue) / prevTotalValue) * 100;
 
-                    if (changePercent > 2.50) {
+                    if (changePercent > this.changeThreshold) {
                         changeClass = 'positive';
-                    } else if (changePercent < -2.50) {
+                    } else if (changePercent < -this.changeThreshold) {
                         changeClass = 'negative';
                     }
                 }
