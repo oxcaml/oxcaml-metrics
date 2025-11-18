@@ -147,7 +147,8 @@ main {
         font-size: 1.1rem;
     }
 
-    #dataTable {
+    #dataTable,
+    #counterDataTable {
         font-size: 1.05rem;
     }
 }
@@ -224,79 +225,95 @@ main {
     overflow-x: auto;
 }
 
-#dataTable {
+#dataTable,
+#counterDataTable {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.95rem;
 }
 
-#dataTable thead {
+#dataTable thead,
+#counterDataTable thead {
     background-color: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
 }
 
-#dataTable th {
+#dataTable th,
+#counterDataTable th {
     padding: 12px 8px;
     text-align: left;
     font-weight: 600;
     color: #495057;
 }
 
-#dataTable th:nth-child(1) {
+#dataTable th:nth-child(1),
+#counterDataTable th:nth-child(1) {
     width: 80px;
 }
 
-#dataTable th:nth-child(2) {
+#dataTable th:nth-child(2),
+#counterDataTable th:nth-child(2) {
     width: 200px;
 }
 
-#dataTable td {
+#dataTable td,
+#counterDataTable td {
     padding: 10px 8px;
     border-bottom: 1px solid #e9ecef;
 }
 
-#dataTable tbody tr:hover {
+#dataTable tbody tr:hover,
+#counterDataTable tbody tr:hover {
     opacity: 0.8;
 }
 
-#dataTable tbody tr.positive {
+#dataTable tbody tr.positive,
+#counterDataTable tbody tr.positive {
     background-color: #ffebee;
 }
 
-#dataTable tbody tr.negative {
+#dataTable tbody tr.negative,
+#counterDataTable tbody tr.negative {
     background-color: #e8f5e9;
 }
 
-#dataTable tbody tr.neutral {
+#dataTable tbody tr.neutral,
+#counterDataTable tbody tr.neutral {
     background-color: #f5f5f5;
 }
 
-#dataTable tbody tr.version-tag-row {
+#dataTable tbody tr.version-tag-row,
+#counterDataTable tbody tr.version-tag-row {
     background-color: #ffeaa7;
     border-top: 2px solid #fdcb6e;
     border-bottom: 2px solid #fdcb6e;
 }
 
-#dataTable tbody tr.version-tag-row td {
+#dataTable tbody tr.version-tag-row td,
+#counterDataTable tbody tr.version-tag-row td {
     padding: 12px 8px;
     color: #2d3436;
 }
 
-#dataTable tbody tr.version-tag-row a:hover {
+#dataTable tbody tr.version-tag-row a:hover,
+#counterDataTable tbody tr.version-tag-row a:hover {
     text-decoration: underline;
 }
 
-#dataTable td:nth-child(1) {
+#dataTable td:nth-child(1),
+#counterDataTable td:nth-child(1) {
     font-weight: 500;
     color: #1565c0;
     cursor: pointer;
 }
 
-#dataTable td:nth-child(1):hover {
+#dataTable td:nth-child(1):hover,
+#counterDataTable td:nth-child(1):hover {
     text-decoration: underline;
 }
 
-#dataTable td:nth-child(2) {
+#dataTable td:nth-child(2),
+#counterDataTable td:nth-child(2) {
     font-family: 'Courier New', monospace;
 }
 
