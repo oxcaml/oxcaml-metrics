@@ -11,7 +11,7 @@ class TimingChartManager extends BaseChartManager {
         });
     }
 
-    // Override to create mixed chart with stacked bars and line overlay
+    // Override to create line chart for all phases
     createStackedBarChart(data) {
         const ctx = document.getElementById(this.config.stackedBarCanvasId).getContext('2d');
 
@@ -19,53 +19,36 @@ class TimingChartManager extends BaseChartManager {
             this.stackedBarChart.destroy();
         }
 
-        // Separate "all" from individual phases
-        const allDataset = data.datasets.find(ds => ds.label === 'all');
-        const phaseDatasets = data.datasets.filter(ds => ds.label !== 'all');
-
-        // Configure phase datasets as stacked bars
-        const barDatasets = phaseDatasets.map(ds => ({
-            ...ds,
-            type: 'bar',
-            stack: 'phases'
+        // Convert all datasets to line format
+        const lineDatasets = data.datasets.map((ds, index) => ({
+            label: ds.label,
+            data: ds.data,
+            borderColor: ds.borderColor,
+            backgroundColor: ds.backgroundColor + '20', // Add transparency
+            borderWidth: ds.label === 'all' ? 3 : 2, // Make 'all' thicker
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            fill: false,
+            tension: 0.1
         }));
 
-        // Configure "all" as a line overlay
-        const lineDatasets = allDataset ? [{
-            label: allDataset.label,
-            data: allDataset.data,
-            type: 'line',
-            borderColor: '#000000',
-            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-            borderWidth: 3,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            fill: false,
-            tension: 0.1,
-            order: 0 // Draw on top
-        }] : [];
-
-        const allDatasets = [...lineDatasets, ...barDatasets];
-
         this.stackedBarChart = new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: data.labels,
-                datasets: allDatasets
+                datasets: lineDatasets
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        stacked: false,
                         title: {
                             display: true,
                             text: 'Pull Request (click to open)'
                         }
                     },
                     y: {
-                        stacked: false,
                         title: {
                             display: true,
                             text: this.config.yAxisLabel
