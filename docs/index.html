@@ -57,13 +57,34 @@
 
             <div id="details" class="tab-content">
                 <section class="chart-section">
-                    <h2>Detailed Analysis</h2>
-                    <p>Detailed charts and analysis will be displayed here.</p>
+                    <h2>Counter Values (Raw Data)</h2>
+                    <div class="chart-container">
+                        <canvas id="counterStackedBarChart"></canvas>
+                    </div>
                 </section>
 
                 <section class="chart-section">
-                    <h2>Additional Metrics</h2>
-                    <p>Additional metrics and visualizations coming soon.</p>
+                    <h2>Counter Trends (Normalized)</h2>
+                    <div class="chart-container">
+                        <canvas id="counterLineChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section">
+                    <h2>Total counter changes (over previous pull request)</h2>
+                    <div class="table-container">
+                        <table id="counterDataTable">
+                            <thead>
+                                <tr>
+                                    <th>PR #</th>
+                                    <th>Change (%)</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="counterDataTableBody">
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
             </div>
         </main>
@@ -73,8 +94,11 @@
     <script src="js/data-loader.js"></script>
     <script src="js/notes-loader.js"></script>
     <script src="js/data-processor.js"></script>
+    <script src="js/counter-data-processor.js"></script>
     <script src="js/charts.js"></script>
+    <script src="js/counter-charts.js"></script>
     <script src="js/table.js"></script>
+    <script src="js/counter-table.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
