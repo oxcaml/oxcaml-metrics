@@ -148,7 +148,9 @@ main {
     }
 
     #dataTable,
-    #counterDataTable {
+    #counterDataTable,
+    #allocationDataTable,
+    #timingDataTable {
         font-size: 1.05rem;
     }
 }
@@ -226,20 +228,26 @@ main {
 }
 
 #dataTable,
-#counterDataTable {
+#counterDataTable,
+#allocationDataTable,
+#timingDataTable {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.95rem;
 }
 
 #dataTable thead,
-#counterDataTable thead {
+#counterDataTable thead,
+#allocationDataTable thead,
+#timingDataTable thead {
     background-color: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
 }
 
 #dataTable th,
-#counterDataTable th {
+#counterDataTable th,
+#allocationDataTable th,
+#timingDataTable th {
     padding: 12px 8px;
     text-align: left;
     font-weight: 600;
@@ -247,73 +255,99 @@ main {
 }
 
 #dataTable th:nth-child(1),
-#counterDataTable th:nth-child(1) {
+#counterDataTable th:nth-child(1),
+#allocationDataTable th:nth-child(1),
+#timingDataTable th:nth-child(1) {
     width: 80px;
 }
 
 #dataTable th:nth-child(2),
-#counterDataTable th:nth-child(2) {
+#counterDataTable th:nth-child(2),
+#allocationDataTable th:nth-child(2),
+#timingDataTable th:nth-child(2) {
     width: 200px;
 }
 
 #dataTable td,
-#counterDataTable td {
+#counterDataTable td,
+#allocationDataTable td,
+#timingDataTable td {
     padding: 10px 8px;
     border-bottom: 1px solid #e9ecef;
 }
 
 #dataTable tbody tr:hover,
-#counterDataTable tbody tr:hover {
+#counterDataTable tbody tr:hover,
+#allocationDataTable tbody tr:hover,
+#timingDataTable tbody tr:hover {
     opacity: 0.8;
 }
 
 #dataTable tbody tr.positive,
-#counterDataTable tbody tr.positive {
+#counterDataTable tbody tr.positive,
+#allocationDataTable tbody tr.positive,
+#timingDataTable tbody tr.positive {
     background-color: #ffebee;
 }
 
 #dataTable tbody tr.negative,
-#counterDataTable tbody tr.negative {
+#counterDataTable tbody tr.negative,
+#allocationDataTable tbody tr.negative,
+#timingDataTable tbody tr.negative {
     background-color: #e8f5e9;
 }
 
 #dataTable tbody tr.neutral,
-#counterDataTable tbody tr.neutral {
+#counterDataTable tbody tr.neutral,
+#allocationDataTable tbody tr.neutral,
+#timingDataTable tbody tr.neutral {
     background-color: #f5f5f5;
 }
 
 #dataTable tbody tr.version-tag-row,
-#counterDataTable tbody tr.version-tag-row {
+#counterDataTable tbody tr.version-tag-row,
+#allocationDataTable tbody tr.version-tag-row,
+#timingDataTable tbody tr.version-tag-row {
     background-color: #ffeaa7;
     border-top: 2px solid #fdcb6e;
     border-bottom: 2px solid #fdcb6e;
 }
 
 #dataTable tbody tr.version-tag-row td,
-#counterDataTable tbody tr.version-tag-row td {
+#counterDataTable tbody tr.version-tag-row td,
+#allocationDataTable tbody tr.version-tag-row td,
+#timingDataTable tbody tr.version-tag-row td {
     padding: 12px 8px;
     color: #2d3436;
 }
 
 #dataTable tbody tr.version-tag-row a:hover,
-#counterDataTable tbody tr.version-tag-row a:hover {
+#counterDataTable tbody tr.version-tag-row a:hover,
+#allocationDataTable tbody tr.version-tag-row a:hover,
+#timingDataTable tbody tr.version-tag-row a:hover {
     text-decoration: underline;
 }
 
 #dataTable td:nth-child(1),
-#counterDataTable td:nth-child(1) {
+#counterDataTable td:nth-child(1),
+#allocationDataTable td:nth-child(1),
+#timingDataTable td:nth-child(1) {
     font-weight: 500;
     color: #1565c0;
     cursor: pointer;
 }
 
 #dataTable td:nth-child(1):hover,
-#counterDataTable td:nth-child(1):hover {
+#counterDataTable td:nth-child(1):hover,
+#allocationDataTable td:nth-child(1):hover,
+#timingDataTable td:nth-child(1):hover {
     text-decoration: underline;
 }
 
 #dataTable td:nth-child(2),
-#counterDataTable td:nth-child(2) {
+#counterDataTable td:nth-child(2),
+#allocationDataTable td:nth-child(2),
+#timingDataTable td:nth-child(2) {
     font-family: 'Courier New', monospace;
 }
 

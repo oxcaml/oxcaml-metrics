@@ -8,6 +8,7 @@ class BaseDataProcessor {
         // - filterFn: function to filter rows
         // - dataKey: 'extensions' or 'counters' (name of the field)
         // - colorPalette: array of colors or function to generate colors
+        // - nameMapFn: (optional) function to map item names for display
     }
 
     process() {
@@ -30,7 +31,8 @@ class BaseDataProcessor {
             }
 
             const timestamp = row.timestamp;
-            const itemName = row.name;
+            const rawName = row.name;
+            const itemName = this.config.nameMapFn ? this.config.nameMapFn(rawName) : rawName;
             const value = row.value;
 
             if (!grouped.has(timestamp)) {

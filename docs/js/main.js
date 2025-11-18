@@ -4,6 +4,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const artifactTableManager = new ArtifactTableManager();
     const counterChartManager = new CounterChartManager();
     const counterTableManager = new CounterTableManager();
+    const allocationChartManager = new AllocationChartManager();
+    const allocationTableManager = new AllocationTableManager();
+    const timingChartManager = new TimingChartManager();
+    const timingTableManager = new TimingTableManager();
 
     try {
         // Initialize and load data
@@ -63,6 +67,60 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } else {
             console.warn('No counter data available');
+        }
+
+        // Process allocation data
+        const allocationDataProcessor = new AllocationDataProcessor(rawData);
+        const allocationProcessedData = allocationDataProcessor.process();
+
+        // Check if we have allocation data
+        if (allocationProcessedData.processed.data.length > 0) {
+            // Get chart data for allocations
+            const allocationChartData = allocationDataProcessor.getChartData();
+
+            // Set version tags for allocation chart annotations
+            allocationChartManager.setVersionTags(notesLoader.versionTags);
+
+            // Create allocation charts
+            allocationChartManager.createCharts(allocationChartData);
+
+            // Create allocation table with notes
+            allocationTableManager.createTable(allocationProcessedData, notesLoader);
+
+            // Display summary stats for allocations
+            const allocationStats = allocationDataProcessor.getSummaryStats();
+            if (allocationStats) {
+                console.log('Allocation Statistics:', allocationStats);
+            }
+        } else {
+            console.warn('No allocation data available');
+        }
+
+        // Process timing data
+        const timingDataProcessor = new TimingDataProcessor(rawData);
+        const timingProcessedData = timingDataProcessor.process();
+
+        // Check if we have timing data
+        if (timingProcessedData.processed.data.length > 0) {
+            // Get chart data for timings
+            const timingChartData = timingDataProcessor.getChartData();
+
+            // Set version tags for timing chart annotations
+            timingChartManager.setVersionTags(notesLoader.versionTags);
+
+            // Create timing charts
+            timingChartManager.createCharts(timingChartData);
+
+            // Create timing table with notes
+            timingTableManager.createTable(timingProcessedData, notesLoader);
+
+            // Display summary stats for timings
+            const timingStats = timingDataProcessor.getSummaryStats();
+            if (timingStats) {
+                console.log('Timing Statistics:', timingStats);
+            }
+        } else {
+            console.warn('No timing data available');
         }
 
     } catch (error) {

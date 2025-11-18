@@ -20,6 +20,8 @@
             <div class="tabs">
                 <button class="tab-button active" data-tab="overview">Artifact sizes</button>
                 <button class="tab-button" data-tab="details">Counters</button>
+                <button class="tab-button" data-tab="allocations">Allocations</button>
+                <button class="tab-button" data-tab="timings">Timings</button>
             </div>
 
             <div id="overview" class="tab-content active">
@@ -87,12 +89,79 @@
                     </div>
                 </section>
             </div>
+
+            <div id="allocations" class="tab-content">
+                <section class="chart-section">
+                    <h2>Allocation by Phase (Raw Data)</h2>
+                    <div class="chart-container">
+                        <canvas id="allocationStackedBarChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section">
+                    <h2>Allocation Trends (Normalized)</h2>
+                    <div class="chart-container">
+                        <canvas id="allocationLineChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section">
+                    <h2>Total allocation changes (over previous pull request)</h2>
+                    <div class="table-container">
+                        <table id="allocationDataTable">
+                            <thead>
+                                <tr>
+                                    <th>PR #</th>
+                                    <th>Change (%)</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allocationDataTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="timings" class="tab-content">
+                <section class="chart-section">
+                    <h2>Execution Time by Phase (Raw Data)</h2>
+                    <div class="chart-container">
+                        <canvas id="timingStackedBarChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section">
+                    <h2>Timing Trends (Normalized)</h2>
+                    <div class="chart-container">
+                        <canvas id="timingLineChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section">
+                    <h2>Total timing changes (over previous pull request)</h2>
+                    <div class="table-container">
+                        <table id="timingDataTable">
+                            <thead>
+                                <tr>
+                                    <th>PR #</th>
+                                    <th>Change (%)</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="timingDataTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
     <script src="js/tabs.js"></script>
     <script src="js/data-loader.js"></script>
     <script src="js/notes-loader.js"></script>
+    <script src="js/constants.js"></script>
     <script src="js/base-data-processor.js"></script>
     <script src="js/base-chart-manager.js"></script>
     <script src="js/base-table-manager.js"></script>
@@ -102,6 +171,12 @@
     <script src="js/counter-data-processor.js"></script>
     <script src="js/counter-charts.js"></script>
     <script src="js/counter-table.js"></script>
+    <script src="js/allocation-data-processor.js"></script>
+    <script src="js/allocation-charts.js"></script>
+    <script src="js/allocation-table.js"></script>
+    <script src="js/timing-data-processor.js"></script>
+    <script src="js/timing-charts.js"></script>
+    <script src="js/timing-table.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
