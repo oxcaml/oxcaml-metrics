@@ -72,7 +72,7 @@ class BaseChartManager {
         }
 
         this.stackedBarChart = new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: data.labels,
                 datasets: data.datasets
@@ -82,14 +82,12 @@ class BaseChartManager {
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        stacked: true,
                         title: {
                             display: true,
                             text: 'Pull Request (click to open)'
                         }
                     },
                     y: {
-                        stacked: true,
                         title: {
                             display: true,
                             text: this.config.yAxisLabel
@@ -124,13 +122,6 @@ class BaseChartManager {
                                 const label = context.dataset.label || '';
                                 const value = context.parsed.y;
                                 return `${label}: ${this.config.formatValueFn(value)}`;
-                            },
-                            afterBody: (tooltipItems) => {
-                                const index = tooltipItems[0].dataIndex;
-                                const total = data.datasets.reduce((sum, dataset) => {
-                                    return sum + (dataset.data[index] || 0);
-                                }, 0);
-                                return `Total: ${this.config.formatValueFn(total)}`;
                             }
                         }
                     }
