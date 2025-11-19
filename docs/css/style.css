@@ -150,6 +150,8 @@ main {
     #dataTable,
     #counterDataTable,
     #allocationDataTable,
+    #topHeapDataTable,
+    #absoluteTopHeapDataTable,
     #timingDataTable {
         font-size: 1.05rem;
     }
@@ -230,6 +232,8 @@ main {
 #dataTable,
 #counterDataTable,
 #allocationDataTable,
+#topHeapDataTable,
+#absoluteTopHeapDataTable,
 #timingDataTable {
     width: 100%;
     border-collapse: collapse;
@@ -239,6 +243,8 @@ main {
 #dataTable thead,
 #counterDataTable thead,
 #allocationDataTable thead,
+#topHeapDataTable thead,
+#absoluteTopHeapDataTable thead,
 #timingDataTable thead {
     background-color: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
@@ -247,6 +253,8 @@ main {
 #dataTable th,
 #counterDataTable th,
 #allocationDataTable th,
+#topHeapDataTable th,
+#absoluteTopHeapDataTable th,
 #timingDataTable th {
     padding: 12px 8px;
     text-align: left;
@@ -257,6 +265,8 @@ main {
 #dataTable th:nth-child(1),
 #counterDataTable th:nth-child(1),
 #allocationDataTable th:nth-child(1),
+#topHeapDataTable th:nth-child(1),
+#absoluteTopHeapDataTable th:nth-child(1),
 #timingDataTable th:nth-child(1) {
     width: 80px;
 }
@@ -264,6 +274,8 @@ main {
 #dataTable th:nth-child(2),
 #counterDataTable th:nth-child(2),
 #allocationDataTable th:nth-child(2),
+#topHeapDataTable th:nth-child(2),
+#absoluteTopHeapDataTable th:nth-child(2),
 #timingDataTable th:nth-child(2) {
     width: 200px;
 }
@@ -271,6 +283,8 @@ main {
 #dataTable td,
 #counterDataTable td,
 #allocationDataTable td,
+#topHeapDataTable td,
+#absoluteTopHeapDataTable td,
 #timingDataTable td {
     padding: 10px 8px;
     border-bottom: 1px solid #e9ecef;
@@ -279,6 +293,8 @@ main {
 #dataTable tbody tr:hover,
 #counterDataTable tbody tr:hover,
 #allocationDataTable tbody tr:hover,
+#topHeapDataTable tbody tr:hover,
+#absoluteTopHeapDataTable tbody tr:hover,
 #timingDataTable tbody tr:hover {
     opacity: 0.8;
 }
@@ -286,6 +302,8 @@ main {
 #dataTable tbody tr.positive,
 #counterDataTable tbody tr.positive,
 #allocationDataTable tbody tr.positive,
+#topHeapDataTable tbody tr.positive,
+#absoluteTopHeapDataTable tbody tr.positive,
 #timingDataTable tbody tr.positive {
     background-color: #ffebee;
 }
@@ -293,6 +311,8 @@ main {
 #dataTable tbody tr.negative,
 #counterDataTable tbody tr.negative,
 #allocationDataTable tbody tr.negative,
+#topHeapDataTable tbody tr.negative,
+#absoluteTopHeapDataTable tbody tr.negative,
 #timingDataTable tbody tr.negative {
     background-color: #e8f5e9;
 }
@@ -300,6 +320,8 @@ main {
 #dataTable tbody tr.neutral,
 #counterDataTable tbody tr.neutral,
 #allocationDataTable tbody tr.neutral,
+#topHeapDataTable tbody tr.neutral,
+#absoluteTopHeapDataTable tbody tr.neutral,
 #timingDataTable tbody tr.neutral {
     background-color: #f5f5f5;
 }
@@ -307,6 +329,8 @@ main {
 #dataTable tbody tr.version-tag-row,
 #counterDataTable tbody tr.version-tag-row,
 #allocationDataTable tbody tr.version-tag-row,
+#topHeapDataTable tbody tr.version-tag-row,
+#absoluteTopHeapDataTable tbody tr.version-tag-row,
 #timingDataTable tbody tr.version-tag-row {
     background-color: #ffeaa7;
     border-top: 2px solid #fdcb6e;
@@ -316,6 +340,8 @@ main {
 #dataTable tbody tr.version-tag-row td,
 #counterDataTable tbody tr.version-tag-row td,
 #allocationDataTable tbody tr.version-tag-row td,
+#topHeapDataTable tbody tr.version-tag-row td,
+#absoluteTopHeapDataTable tbody tr.version-tag-row td,
 #timingDataTable tbody tr.version-tag-row td {
     padding: 12px 8px;
     color: #2d3436;
@@ -324,6 +350,8 @@ main {
 #dataTable tbody tr.version-tag-row a:hover,
 #counterDataTable tbody tr.version-tag-row a:hover,
 #allocationDataTable tbody tr.version-tag-row a:hover,
+#topHeapDataTable tbody tr.version-tag-row a:hover,
+#absoluteTopHeapDataTable tbody tr.version-tag-row a:hover,
 #timingDataTable tbody tr.version-tag-row a:hover {
     text-decoration: underline;
 }
@@ -331,6 +359,8 @@ main {
 #dataTable td:nth-child(1),
 #counterDataTable td:nth-child(1),
 #allocationDataTable td:nth-child(1),
+#topHeapDataTable td:nth-child(1),
+#absoluteTopHeapDataTable td:nth-child(1),
 #timingDataTable td:nth-child(1) {
     font-weight: 500;
     color: #1565c0;
@@ -340,6 +370,8 @@ main {
 #dataTable td:nth-child(1):hover,
 #counterDataTable td:nth-child(1):hover,
 #allocationDataTable td:nth-child(1):hover,
+#topHeapDataTable td:nth-child(1):hover,
+#absoluteTopHeapDataTable td:nth-child(1):hover,
 #timingDataTable td:nth-child(1):hover {
     text-decoration: underline;
 }
@@ -347,6 +379,8 @@ main {
 #dataTable td:nth-child(2),
 #counterDataTable td:nth-child(2),
 #allocationDataTable td:nth-child(2),
+#topHeapDataTable td:nth-child(2),
+#absoluteTopHeapDataTable td:nth-child(2),
 #timingDataTable td:nth-child(2) {
     font-family: 'Courier New', monospace;
 }
