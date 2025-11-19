@@ -8,6 +8,9 @@ on:
 jobs:
   process-metrics:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to push commits
+      issues: write    # Required to create issues on failure
 
     steps:
       - name: Checkout repository
