@@ -80,6 +80,9 @@ class AggregationStrategy(Enum):
 COUNTER_CONFIG = {
     'reload': AggregationStrategy.LAST,
     'spill': AggregationStrategy.LAST,
+    'block': AggregationStrategy.LAST,
+    'instruction': AggregationStrategy.LAST,
+    'move': AggregationStrategy.LAST,
 }
 
 
