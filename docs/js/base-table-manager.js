@@ -40,14 +40,14 @@ class BaseTableManager {
             const row = document.createElement('tr');
 
             // Calculate total value for this entry
-            const totalValue = Array.from(entry[dataKey].values()).reduce((sum, value) => sum + value, 0);
+            const totalValue = this.calculateComparisonValue(entry);
 
             // Calculate percentage change from previous entry
             let changePercent = null;
             let changeClass = 'neutral';
             if (index > 0) {
                 const prevEntry = data[index - 1];
-                const prevTotalValue = Array.from(prevEntry[dataKey].values()).reduce((sum, value) => sum + value, 0);
+                const prevTotalValue = this.calculateComparisonValue(prevEntry);
 
                 if (prevTotalValue > 0) {
                     changePercent = ((totalValue - prevTotalValue) / prevTotalValue) * 100;
@@ -140,5 +140,13 @@ class BaseTableManager {
         row.appendChild(cell);
 
         return row;
+    }
+
+    // Calculate the value to use for comparison between PRs
+    // Can be overridden by subclasses to customize comparison logic
+    calculateComparisonValue(entry) {
+        const dataKey = this.config.dataKey;
+        // Default: sum all values
+        return Array.from(entry[dataKey].values()).reduce((sum, value) => sum + value, 0);
     }
 }

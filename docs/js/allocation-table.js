@@ -5,4 +5,9 @@ class AllocationTableManager extends BaseTableManager {
             dataKey: 'phases'
         });
     }
+
+    // Override to use only the '<all>' phase value for comparison
+    calculateComparisonValue(entry) {
+        return entry.phases.get('<all>') || 0;
+    }
 }
