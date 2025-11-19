@@ -7,8 +7,8 @@ class TimingTableManager extends BaseTableManager {
         });
     }
 
-    // Override to use only the '<all>' phase value for comparison
+    // Override to use only the 'all' phase value for comparison
     calculateComparisonValue(entry) {
-        return entry.phases.get('<all>') || 0;
+        return entry.phases.get('all') || 0;
     }
 }
