@@ -21,6 +21,8 @@
                 <button class="tab-button active" data-tab="overview">Artifact sizes</button>
                 <button class="tab-button" data-tab="details">Counters</button>
                 <button class="tab-button" data-tab="allocations">Allocations</button>
+                <button class="tab-button" data-tab="topheap">Top Heap</button>
+                <button class="tab-button" data-tab="absolutetopheap">Absolute Top Heap</button>
                 <button class="tab-button" data-tab="timings">Timings</button>
             </div>
 
@@ -123,6 +125,72 @@
                 </section>
             </div>
 
+            <div id="topheap" class="tab-content">
+                <section class="chart-section">
+                    <h2>Top Heap by Phase (Raw Data)</h2>
+                    <div class="chart-container">
+                        <canvas id="topHeapStackedBarChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section">
+                    <h2>Top Heap Trends (Normalized)</h2>
+                    <div class="chart-container">
+                        <canvas id="topHeapLineChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section">
+                    <h2>Total top heap changes (over previous pull request)</h2>
+                    <div class="table-container">
+                        <table id="topHeapDataTable">
+                            <thead>
+                                <tr>
+                                    <th>PR #</th>
+                                    <th>Change (%)</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topHeapDataTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="absolutetopheap" class="tab-content">
+                <section class="chart-section">
+                    <h2>Absolute Top Heap by Phase (Raw Data)</h2>
+                    <div class="chart-container">
+                        <canvas id="absoluteTopHeapStackedBarChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section">
+                    <h2>Absolute Top Heap Trends (Normalized)</h2>
+                    <div class="chart-container">
+                        <canvas id="absoluteTopHeapLineChart"></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section">
+                    <h2>Total absolute top heap changes (over previous pull request)</h2>
+                    <div class="table-container">
+                        <table id="absoluteTopHeapDataTable">
+                            <thead>
+                                <tr>
+                                    <th>PR #</th>
+                                    <th>Change (%)</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+                            <tbody id="absoluteTopHeapDataTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
             <div id="timings" class="tab-content">
                 <section class="chart-section">
                     <h2>Execution Time by Phase (Raw Data)</h2>
@@ -174,6 +242,12 @@
     <script src="js/allocation-data-processor.js"></script>
     <script src="js/allocation-charts.js"></script>
     <script src="js/allocation-table.js"></script>
+    <script src="js/top-heap-data-processor.js"></script>
+    <script src="js/top-heap-charts.js"></script>
+    <script src="js/top-heap-table.js"></script>
+    <script src="js/absolute-top-heap-data-processor.js"></script>
+    <script src="js/absolute-top-heap-charts.js"></script>
+    <script src="js/absolute-top-heap-table.js"></script>
     <script src="js/timing-data-processor.js"></script>
     <script src="js/timing-charts.js"></script>
     <script src="js/timing-table.js"></script>

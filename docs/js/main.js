@@ -6,6 +6,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const counterTableManager = new CounterTableManager();
     const allocationChartManager = new AllocationChartManager();
     const allocationTableManager = new AllocationTableManager();
+    const topHeapChartManager = new TopHeapChartManager();
+    const topHeapTableManager = new TopHeapTableManager();
+    const absoluteTopHeapChartManager = new AbsoluteTopHeapChartManager();
+    const absoluteTopHeapTableManager = new AbsoluteTopHeapTableManager();
     const timingChartManager = new TimingChartManager();
     const timingTableManager = new TimingTableManager();
 
@@ -94,6 +98,60 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } else {
             console.warn('No allocation data available');
+        }
+
+        // Process top-heap data
+        const topHeapDataProcessor = new TopHeapDataProcessor(rawData);
+        const topHeapProcessedData = topHeapDataProcessor.process();
+
+        // Check if we have top-heap data
+        if (topHeapProcessedData.processed.data.length > 0) {
+            // Get chart data for top-heap
+            const topHeapChartData = topHeapDataProcessor.getChartData();
+
+            // Set version tags for top-heap chart annotations
+            topHeapChartManager.setVersionTags(notesLoader.versionTags);
+
+            // Create top-heap charts
+            topHeapChartManager.createCharts(topHeapChartData);
+
+            // Create top-heap table with notes
+            topHeapTableManager.createTable(topHeapProcessedData, notesLoader);
+
+            // Display summary stats for top-heap
+            const topHeapStats = topHeapDataProcessor.getSummaryStats();
+            if (topHeapStats) {
+                console.log('Top Heap Statistics:', topHeapStats);
+            }
+        } else {
+            console.warn('No top-heap data available');
+        }
+
+        // Process absolute-top-heap data
+        const absoluteTopHeapDataProcessor = new AbsoluteTopHeapDataProcessor(rawData);
+        const absoluteTopHeapProcessedData = absoluteTopHeapDataProcessor.process();
+
+        // Check if we have absolute-top-heap data
+        if (absoluteTopHeapProcessedData.processed.data.length > 0) {
+            // Get chart data for absolute-top-heap
+            const absoluteTopHeapChartData = absoluteTopHeapDataProcessor.getChartData();
+
+            // Set version tags for absolute-top-heap chart annotations
+            absoluteTopHeapChartManager.setVersionTags(notesLoader.versionTags);
+
+            // Create absolute-top-heap charts
+            absoluteTopHeapChartManager.createCharts(absoluteTopHeapChartData);
+
+            // Create absolute-top-heap table with notes
+            absoluteTopHeapTableManager.createTable(absoluteTopHeapProcessedData, notesLoader);
+
+            // Display summary stats for absolute-top-heap
+            const absoluteTopHeapStats = absoluteTopHeapDataProcessor.getSummaryStats();
+            if (absoluteTopHeapStats) {
+                console.log('Absolute Top Heap Statistics:', absoluteTopHeapStats);
+            }
+        } else {
+            console.warn('No absolute-top-heap data available');
         }
 
         // Process timing data
