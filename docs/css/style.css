@@ -33,6 +33,13 @@ h1 {
     font-weight: 300;
 }
 
+.subtitle {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 5px 0 10px 0;
+    font-family: 'Courier New', monospace;
+}
+
 .status {
     font-size: 1rem;
     padding: 8px 16px;
