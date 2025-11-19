@@ -39,6 +39,8 @@ class PassData(NamedTuple):
     """Data for a single compiler pass."""
     time: float  # time in seconds
     alloc: int  # allocated memory in bytes
+    top_heap: int  # top heap size in bytes
+    absolute_top_heap: int  # absolute top heap size in bytes
 
 
 PassMetrics = Dict[str, PassData]  # pass name -> pass data
@@ -172,18 +174,20 @@ def process_profile_csv(profile_path: Path) -> ProfileMetrics:
     Process a single profile CSV file.
 
     Returns ProfileMetrics containing:
-    - pass_metrics: Dict mapping pass names to PassData (time and alloc)
+    - pass_metrics: Dict mapping pass names to PassData (time, alloc, top_heap, absolute_top_heap)
     - counters: Dict mapping counter names to their aggregated values across all passes
 
     Example:
         ProfileMetrics(
-            pass_metrics={'parsing': PassData(time=1.234, alloc=12345678)},
+            pass_metrics={'parsing': PassData(time=1.234, alloc=12345678, top_heap=5000000, absolute_top_heap=6000000)},
             counters={'reload': 41, 'spill': 28}
         )
     """
     # Use temporary dicts for aggregation
     pass_time_values: Dict[str, float] = defaultdict(float)
     pass_alloc_values: Dict[str, int] = defaultdict(int)
+    pass_top_heap_values: Dict[str, int] = defaultdict(int)
+    pass_absolute_top_heap_values: Dict[str, int] = defaultdict(int)
     counters: Counters = defaultdict(int)
 
     with open(profile_path, 'r') as f:
@@ -210,6 +214,18 @@ def process_profile_csv(profile_path: Path) -> ProfileMetrics:
                     if alloc_val is not None:
                         pass_alloc_values[key_pass] += alloc_val
 
+                    # Extract top-heap
+                    top_heap_str = row.get('top-heap', '')
+                    top_heap_val = parse_alloc(top_heap_str)
+                    if top_heap_val is not None:
+                        pass_top_heap_values[key_pass] += top_heap_val
+
+                    # Extract absolute-top-heap
+                    absolute_top_heap_str = row.get('absolute-top-heap', '')
+                    absolute_top_heap_val = parse_alloc(absolute_top_heap_str)
+                    if absolute_top_heap_val is not None:
+                        pass_absolute_top_heap_values[key_pass] += absolute_top_heap_val
+
             # Extract counters from all passes
             counter_str = row.get('counters', '')
             row_counters = parse_counters(counter_str)
@@ -227,7 +243,9 @@ def process_profile_csv(profile_path: Path) -> ProfileMetrics:
     for key_pass in KEY_PASSES:
         pass_metrics[key_pass] = PassData(
             time=pass_time_values[key_pass],
-            alloc=pass_alloc_values[key_pass]
+            alloc=pass_alloc_values[key_pass],
+            top_heap=pass_top_heap_values[key_pass],
+            absolute_top_heap=pass_absolute_top_heap_values[key_pass]
         )
 
     return ProfileMetrics(
@@ -309,6 +327,8 @@ def convert_profiles(input_path: Path, metadata: Dict[str, str]) -> List[List]:
     # Aggregate metrics across all profiles
     all_pass_time_values: Dict[str, float] = defaultdict(float)
     all_pass_alloc_values: Dict[str, int] = defaultdict(int)
+    all_pass_top_heap_values: Dict[str, int] = defaultdict(int)
+    all_pass_absolute_top_heap_values: Dict[str, int] = defaultdict(int)
     all_counters: Counters = defaultdict(int)
 
     # Extract and process all profile CSV files
@@ -333,6 +353,8 @@ def convert_profiles(input_path: Path, metadata: Dict[str, str]) -> List[List]:
             for key_pass, pass_data in profile_metrics.pass_metrics.items():
                 all_pass_time_values[key_pass] += pass_data.time
                 all_pass_alloc_values[key_pass] += pass_data.alloc
+                all_pass_top_heap_values[key_pass] += pass_data.top_heap
+                all_pass_absolute_top_heap_values[key_pass] += pass_data.absolute_top_heap
 
             # Aggregate counters (always sum across profiles)
             for counter_name, counter_value in profile_metrics.counters.items():
@@ -343,7 +365,9 @@ def convert_profiles(input_path: Path, metadata: Dict[str, str]) -> List[List]:
     for key_pass in KEY_PASSES:
         all_pass_metrics[key_pass] = PassData(
             time=all_pass_time_values[key_pass],
-            alloc=all_pass_alloc_values[key_pass]
+            alloc=all_pass_alloc_values[key_pass],
+            top_heap=all_pass_top_heap_values[key_pass],
+            absolute_top_heap=all_pass_absolute_top_heap_values[key_pass]
         )
 
     # Generate metric rows
@@ -371,6 +395,30 @@ def convert_profiles(input_path: Path, metadata: Dict[str, str]) -> List[List]:
             'alloc_in_bytes',
             key_pass,
             pass_data.alloc
+        ])
+
+    # Write top-heap metrics for each key pass
+    for key_pass in KEY_PASSES:
+        pass_data = all_pass_metrics[key_pass]
+        metric_rows.append([
+            metadata['timestamp'],
+            metadata['commit_hash'],
+            metadata['pr_number'],
+            'top_heap_in_bytes',
+            key_pass,
+            pass_data.top_heap
+        ])
+
+    # Write absolute-top-heap metrics for each key pass
+    for key_pass in KEY_PASSES:
+        pass_data = all_pass_metrics[key_pass]
+        metric_rows.append([
+            metadata['timestamp'],
+            metadata['commit_hash'],
+            metadata['pr_number'],
+            'absolute_top_heap_in_bytes',
+            key_pass,
+            pass_data.absolute_top_heap
         ])
 
     # Write counter metrics (aggregated across all profiles)
