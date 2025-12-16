@@ -1,13 +1,15 @@
 class CounterDataProcessor extends BaseDataProcessor {
     constructor(rawData) {
-        const countersToTrack = ['reload', 'spill', 'block', 'instruction', 'move'];
+        const countersToTrack = ['reload', 'spill', 'block', 'instruction', 'move', 'stack_slot'];
 
         // Use distinct colors for counters
         const counterColors = [
             '#e74c3c', // Red for first counter
             '#3498db', // Blue for second counter
-            '#2ecc71', // Green for third counter (if needed)
-            '#f39c12'  // Orange for fourth counter (if needed)
+            '#2ecc71', // Green for third counter
+            '#f39c12', // Orange for fourth counter
+            '#9b59b6', // Purple for fifth counter
+            '#1abc9c'  // Teal for sixth counter
         ];
 
         super(rawData, {
