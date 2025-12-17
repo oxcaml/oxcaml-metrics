@@ -85,6 +85,7 @@ COUNTER_CONFIG = {
     'block': AggregationStrategy.LAST,
     'instruction': AggregationStrategy.LAST,
     'move': AggregationStrategy.LAST,
+    'stack_slot': AggregationStrategy.LAST,
 }
 
 
