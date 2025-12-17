@@ -7,7 +7,8 @@ class AbsoluteTopHeapChartManager extends BaseChartManager {
             lineChartTitle: 'Absolute Top Heap Trends (Normalized to First Non-Zero Value)',
             yAxisLabel: 'Absolute Top Heap (bytes)',
             normalizedYAxisLabel: 'Relative Absolute Top Heap (%)',
-            formatValueFn: (value) => this.formatBytes(value)
+            formatValueFn: (value) => this.formatBytes(value),
+            enableRegression: true
         });
     }
 

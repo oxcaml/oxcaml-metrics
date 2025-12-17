@@ -18,6 +18,94 @@ class BaseChartManager {
         this.versionTags = versionTags;
     }
 
+    /**
+     * Calculate linear regression coefficients (slope and intercept) for a dataset
+     * using the least squares method.
+     * @param {Array<number>} xValues - Array of x values (indices)
+     * @param {Array<number>} yValues - Array of y values (data points)
+     * @returns {{slope: number, intercept: number}} Regression coefficients
+     */
+    calculateLinearRegression(xValues, yValues) {
+        const n = xValues.length;
+        if (n === 0) {
+            return { slope: 0, intercept: 0 };
+        }
+
+        // Calculate means
+        const xMean = xValues.reduce((sum, x) => sum + x, 0) / n;
+        const yMean = yValues.reduce((sum, y) => sum + y, 0) / n;
+
+        // Calculate slope and intercept using least squares method
+        let numerator = 0;
+        let denominator = 0;
+
+        for (let i = 0; i < n; i++) {
+            numerator += (xValues[i] - xMean) * (yValues[i] - yMean);
+            denominator += (xValues[i] - xMean) * (xValues[i] - xMean);
+        }
+
+        const slope = denominator === 0 ? 0 : numerator / denominator;
+        const intercept = yMean - slope * xMean;
+
+        return { slope, intercept };
+    }
+
+    /**
+     * Generate regression line datasets for specified intervals
+     * @param {Array<number>} dataPoints - The data points to fit
+     * @param {Array<{start: number, end: number}>} intervals - Array of intervals
+     * @param {string} color - Base color for the regression line
+     * @param {string} label - Label for the regression line
+     * @returns {Array<Object>} Array of Chart.js dataset objects for regression lines
+     */
+    generateRegressionDatasets(dataPoints, intervals, color, label) {
+        const regressionDatasets = [];
+
+        intervals.forEach((interval, index) => {
+            const { start, end } = interval;
+
+            // Extract data for this interval
+            const xValues = [];
+            const yValues = [];
+
+            for (let i = start; i <= end && i < dataPoints.length; i++) {
+                xValues.push(i);
+                yValues.push(dataPoints[i]);
+            }
+
+            if (xValues.length < 2) {
+                // Need at least 2 points for a line
+                return;
+            }
+
+            // Calculate regression coefficients
+            const { slope, intercept } = this.calculateLinearRegression(xValues, yValues);
+
+            // Generate regression line data
+            const regressionData = new Array(dataPoints.length).fill(null);
+            for (let i = start; i <= end && i < dataPoints.length; i++) {
+                regressionData[i] = slope * i + intercept;
+            }
+
+            // Create dataset for this regression line segment
+            regressionDatasets.push({
+                label: intervals.length > 1 ? `${label} (Regression ${index + 1})` : `${label} (Regression)`,
+                data: regressionData,
+                borderColor: color,
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [5, 5], // Dashed line
+                pointRadius: 0, // No points
+                pointHoverRadius: 0,
+                fill: false,
+                tension: 0, // Straight line
+                order: 1000 // Draw regression lines on top
+            });
+        });
+
+        return regressionDatasets;
+    }
+
     createCharts(chartData) {
         this.createStackedBarChart(chartData.raw);
         this.createLineChart(chartData.normalized);
@@ -158,11 +246,37 @@ class BaseChartManager {
             this.lineChart.destroy();
         }
 
+        // Prepare datasets with optional regression lines
+        let datasets = [...data.datasets];
+
+        // Add regression lines if enabled and 'all' dataset exists
+        if (this.config.enableRegression) {
+            const allDataset = data.datasets.find(ds => ds.label === 'all');
+            if (allDataset && allDataset.data && allDataset.data.length > 0) {
+                // Define intervals - currently using a single interval covering the whole dataset
+                // This structure allows for easy future expansion to multiple intervals
+                const intervals = [
+                    { start: 0, end: allDataset.data.length - 1 }
+                ];
+
+                // Generate regression datasets
+                const regressionDatasets = this.generateRegressionDatasets(
+                    allDataset.data,
+                    intervals,
+                    allDataset.borderColor,
+                    allDataset.label
+                );
+
+                // Add regression datasets to the chart
+                datasets = datasets.concat(regressionDatasets);
+            }
+        }
+
         this.lineChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: data.labels,
-                datasets: data.datasets
+                datasets: datasets
             },
             options: {
                 responsive: true,

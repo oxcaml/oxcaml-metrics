@@ -7,7 +7,8 @@ class TopHeapChartManager extends BaseChartManager {
             lineChartTitle: 'Top Heap Trends (Normalized to First Non-Zero Value)',
             yAxisLabel: 'Top Heap (bytes)',
             normalizedYAxisLabel: 'Relative Top Heap (%)',
-            formatValueFn: (value) => this.formatBytes(value)
+            formatValueFn: (value) => this.formatBytes(value),
+            enableRegression: true
         });
     }
 

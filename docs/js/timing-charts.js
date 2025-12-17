@@ -7,7 +7,8 @@ class TimingChartManager extends BaseChartManager {
             lineChartTitle: 'Timing Trends (Normalized to First Non-Zero Value)',
             yAxisLabel: 'Time (seconds)',
             normalizedYAxisLabel: 'Relative Time (%)',
-            formatValueFn: (value) => this.formatTime(value)
+            formatValueFn: (value) => this.formatTime(value),
+            enableRegression: true
         });
     }
 

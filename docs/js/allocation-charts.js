@@ -7,7 +7,8 @@ class AllocationChartManager extends BaseChartManager {
             lineChartTitle: 'Allocation Trends (Normalized to First Non-Zero Value)',
             yAxisLabel: 'Allocation (bytes)',
             normalizedYAxisLabel: 'Relative Allocation (%)',
-            formatValueFn: (value) => this.formatBytes(value)
+            formatValueFn: (value) => this.formatBytes(value),
+            enableRegression: true
         });
     }
 
