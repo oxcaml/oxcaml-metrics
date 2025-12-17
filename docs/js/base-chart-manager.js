@@ -108,7 +108,7 @@ class BaseChartManager {
 
     createCharts(chartData) {
         this.createStackedBarChart(chartData.raw);
-        this.createLineChart(chartData.normalized);
+        this.createLineChart(chartData.normalized, chartData.raw);
     }
 
     createAnnotationsForChart(prNumbers) {
@@ -239,7 +239,7 @@ class BaseChartManager {
         });
     }
 
-    createLineChart(data) {
+    createLineChart(data, rawData = null) {
         const ctx = document.getElementById(this.config.lineCanvasId).getContext('2d');
 
         if (this.lineChart) {
@@ -273,26 +273,40 @@ class BaseChartManager {
         }
 
         // Add regression lines for summed data if enabled
-        if (this.config.enableRegressionOnSum && data.datasets.length > 0) {
-            // Sum all datasets to create aggregate data
-            const dataLength = data.datasets[0].data.length;
-            const summedData = new Array(dataLength).fill(0);
+        if (this.config.enableRegressionOnSum && rawData && rawData.datasets.length > 0) {
+            // Sum raw data values first
+            const dataLength = rawData.datasets[0].data.length;
+            const summedRawData = new Array(dataLength).fill(0);
 
-            // Sum all dataset values
-            data.datasets.forEach(dataset => {
+            // Sum all raw dataset values
+            rawData.datasets.forEach(dataset => {
                 dataset.data.forEach((value, index) => {
-                    summedData[index] += value || 0;
+                    summedRawData[index] += value || 0;
                 });
             });
 
+            // Normalize the summed data (to percentage, starting at 100%)
+            // Find first non-zero value as baseline
+            let baseline = 0;
+            for (let i = 0; i < summedRawData.length; i++) {
+                if (summedRawData[i] > 0) {
+                    baseline = summedRawData[i];
+                    break;
+                }
+            }
+
+            const normalizedSumData = summedRawData.map(value =>
+                baseline > 0 ? (value / baseline) * 100 : 0
+            );
+
             // Define intervals - currently using a single interval covering the whole dataset
             const intervals = [
-                { start: 0, end: summedData.length - 1 }
+                { start: 0, end: normalizedSumData.length - 1 }
             ];
 
-            // Generate regression datasets for the sum
+            // Generate regression datasets for the normalized sum
             const regressionDatasets = this.generateRegressionDatasets(
-                summedData,
+                normalizedSumData,
                 intervals,
                 '#2c3e50', // Dark gray color for total regression
                 'Total'
