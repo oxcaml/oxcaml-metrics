@@ -249,7 +249,7 @@ class BaseChartManager {
         // Prepare datasets with optional regression lines
         let datasets = [...data.datasets];
 
-        // Add regression lines if enabled and 'all' dataset exists
+        // Add regression lines if enabled
         if (this.config.enableRegression) {
             const allDataset = data.datasets.find(ds => ds.label === 'all');
             if (allDataset && allDataset.data && allDataset.data.length > 0) {
@@ -270,6 +270,36 @@ class BaseChartManager {
                 // Add regression datasets to the chart
                 datasets = datasets.concat(regressionDatasets);
             }
+        }
+
+        // Add regression lines for summed data if enabled
+        if (this.config.enableRegressionOnSum && data.datasets.length > 0) {
+            // Sum all datasets to create aggregate data
+            const dataLength = data.datasets[0].data.length;
+            const summedData = new Array(dataLength).fill(0);
+
+            // Sum all dataset values
+            data.datasets.forEach(dataset => {
+                dataset.data.forEach((value, index) => {
+                    summedData[index] += value || 0;
+                });
+            });
+
+            // Define intervals - currently using a single interval covering the whole dataset
+            const intervals = [
+                { start: 0, end: summedData.length - 1 }
+            ];
+
+            // Generate regression datasets for the sum
+            const regressionDatasets = this.generateRegressionDatasets(
+                summedData,
+                intervals,
+                '#2c3e50', // Dark gray color for total regression
+                'Total'
+            );
+
+            // Add regression datasets to the chart
+            datasets = datasets.concat(regressionDatasets);
         }
 
         this.lineChart = new Chart(ctx, {

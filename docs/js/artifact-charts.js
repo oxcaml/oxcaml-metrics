@@ -12,7 +12,8 @@ class ArtifactChartManager extends BaseChartManager {
             lineChartTitle: 'File Size Trends (Normalized to First Non-Zero Value)',
             yAxisLabel: 'File Size (bytes)',
             normalizedYAxisLabel: 'Relative Size (%)',
-            formatValueFn: (value) => this.formatBytes(value)
+            formatValueFn: (value) => this.formatBytes(value),
+            enableRegressionOnSum: true
         });
     }
 
