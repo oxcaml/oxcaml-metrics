@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const absoluteTopHeapTableManager = new AbsoluteTopHeapTableManager();
     const timingChartManager = new TimingChartManager();
     const timingTableManager = new TimingTableManager();
+    const ratioChartManager = new RatioChartManager();
+    const ratioTableManager = new RatioTableManager();
 
     try {
         // Initialize and load data
@@ -179,6 +181,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } else {
             console.warn('No timing data available');
+        }
+
+        // Process ratio data (time per instruction)
+        const ratioDataProcessor = new RatioDataProcessor(rawData);
+        const ratioProcessedData = ratioDataProcessor.process();
+
+        // Check if we have ratio data
+        if (ratioProcessedData.length > 0) {
+            // Get chart data for ratio
+            const ratioChartData = ratioDataProcessor.getChartData();
+
+            // Set version tags for ratio chart annotations
+            ratioChartManager.setVersionTags(notesLoader.versionTags);
+
+            // Create ratio chart
+            ratioChartManager.createChart(ratioChartData);
+
+            // Create ratio table with notes
+            ratioTableManager.createTable(ratioProcessedData, notesLoader);
+
+            // Display summary stats for ratio
+            const ratioStats = ratioDataProcessor.getSummaryStats();
+            if (ratioStats) {
+                console.log('Ratio Statistics:', ratioStats);
+            }
+        } else {
+            console.warn('No ratio data available');
         }
 
     } catch (error) {
