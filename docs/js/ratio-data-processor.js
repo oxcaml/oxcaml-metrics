@@ -63,6 +63,9 @@ class RatioDataProcessor {
         // Calculate regression line using least squares
         const regression = this.calculateRegression(data);
 
+        // Calculate moving average
+        const movingAverage = this.calculateMovingAverage(ratios, 7);
+
         const datasets = [
             {
                 label: 'Time per Instruction (ns)',
@@ -73,10 +76,10 @@ class RatioDataProcessor {
                 tension: 0.1,
                 pointRadius: 4,
                 pointHoverRadius: 6,
-                order: 2
+                order: 3
             },
             {
-                label: 'Regression Line',
+                label: 'Linear Regression',
                 data: regression.values,
                 borderColor: '#e74c3c',
                 backgroundColor: 'transparent',
@@ -86,6 +89,18 @@ class RatioDataProcessor {
                 pointRadius: 0,
                 pointHoverRadius: 0,
                 order: 1
+            },
+            {
+                label: 'Moving Average (7-point)',
+                data: movingAverage,
+                borderColor: '#2ecc71',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [10, 5],
+                fill: false,
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                order: 2
             }
         ];
 
@@ -95,7 +110,8 @@ class RatioDataProcessor {
             commits: data.map(entry => entry.commit_hash),
             prNumbers: data.map(entry => entry.pr_number),
             timestamps: data.map(entry => entry.timestamp),
-            regression: regression
+            regression: regression,
+            movingAverage: movingAverage
         };
     }
 
@@ -131,6 +147,33 @@ class RatioDataProcessor {
             intercept: intercept,
             values: values
         };
+    }
+
+    calculateMovingAverage(values, windowSize) {
+        if (values.length === 0) {
+            return [];
+        }
+
+        const result = [];
+
+        for (let i = 0; i < values.length; i++) {
+            // Calculate the window boundaries
+            const halfWindow = Math.floor(windowSize / 2);
+            const start = Math.max(0, i - halfWindow);
+            const end = Math.min(values.length, i + halfWindow + 1);
+
+            // Calculate average for the window
+            let sum = 0;
+            let count = 0;
+            for (let j = start; j < end; j++) {
+                sum += values[j];
+                count++;
+            }
+
+            result.push(sum / count);
+        }
+
+        return result;
     }
 
     getSummaryStats() {

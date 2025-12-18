@@ -65,9 +65,6 @@ class RatioChartManager {
                             label: (context) => {
                                 const label = context.dataset.label || '';
                                 const value = context.parsed.y;
-                                if (label === 'Regression Line') {
-                                    return `${label}: ${value.toFixed(4)} ns/instruction`;
-                                }
                                 return `${label}: ${value.toFixed(4)} ns/instruction`;
                             }
                         }
