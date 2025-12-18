@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const timingChartManager = new TimingChartManager();
     const timingTableManager = new TimingTableManager();
     const ratioChartManager = new RatioChartManager();
-    const ratioTableManager = new RatioTableManager();
 
     try {
         // Initialize and load data
@@ -197,9 +196,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Create ratio chart
             ratioChartManager.createChart(ratioChartData);
-
-            // Create ratio table with notes
-            ratioTableManager.createTable(ratioProcessedData, notesLoader);
 
             // Display summary stats for ratio
             const ratioStats = ratioDataProcessor.getSummaryStats();

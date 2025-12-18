@@ -25,7 +25,7 @@
                 <button class="tab-button" data-tab="topheap">Top Heap</button>
                 <button class="tab-button" data-tab="absolutetopheap">Absolute Top Heap</button>
                 <button class="tab-button" data-tab="timings">Timings</button>
-                <button class="tab-button" data-tab="ratio">Time/Instruction Ratio</button>
+                <button class="tab-button" data-tab="ratio">Derived Metrics</button>
             </div>
 
             <div id="overview" class="tab-content active">
@@ -233,23 +233,6 @@
                         <canvas id="ratioChart"></canvas>
                     </div>
                 </section>
-
-                <section class="chart-section">
-                    <h2>Ratio changes (over previous pull request)</h2>
-                    <div class="table-container">
-                        <table id="ratioDataTable">
-                            <thead>
-                                <tr>
-                                    <th>PR #</th>
-                                    <th>Change (%)</th>
-                                    <th>Note</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ratioDataTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
             </div>
         </main>
     </div>
@@ -281,7 +264,6 @@
     <script src="js/timing-table.js"></script>
     <script src="js/ratio-data-processor.js"></script>
     <script src="js/ratio-charts.js"></script>
-    <script src="js/ratio-table.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
