@@ -57,10 +57,12 @@ class RatioChartManager {
                         callbacks: {
                             title: (tooltipItems) => {
                                 const index = tooltipItems[0].dataIndex;
-                                const prNumber = chartData.prNumbers[index];
+                                const prNumbers = chartData.prNumberLists
+                                    ? chartData.prNumberLists[index]
+                                    : chartData.prNumbers[index];
                                 const commit = chartData.commits[index];
                                 const timestamp = chartData.timestamps[index];
-                                return `PR #${prNumber}\nCommit: ${commit.substring(0, 8)}\n${timestamp}`;
+                                return `PR(s): ${this.formatPrNumbers(prNumbers)}\nCommit: ${commit.substring(0, 8)}\n${timestamp}`;
                             },
                             label: (context) => {
                                 const label = context.dataset.label || '';
@@ -132,5 +134,14 @@ class RatioChartManager {
             this.ratioChart.destroy();
             this.ratioChart = null;
         }
+    }
+
+    formatPrNumbers(prNumbers) {
+        return String(prNumbers || '')
+            .split(',')
+            .map(prNumber => prNumber.trim())
+            .filter(prNumber => prNumber.length > 0)
+            .map(prNumber => `#${prNumber}`)
+            .join(', ');
     }
 }

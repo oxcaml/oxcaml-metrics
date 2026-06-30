@@ -63,13 +63,20 @@ class BaseTableManager {
             // Apply class to the row
             row.className = changeClass;
 
-            // Create PR number cell (clickable)
+            // Create PR number cell. When a metrics point covers multiple
+            // source commits, this cell shows all PRs in that compared range.
             const prCell = document.createElement('td');
-            prCell.textContent = `#${entry.pr_number}`;
-            prCell.style.cursor = 'pointer';
-            prCell.addEventListener('click', () => {
-                const prUrl = `https://github.com/oxcaml/oxcaml/pull/${entry.pr_number}`;
-                window.open(prUrl, '_blank');
+            prCell.title = `Measured commit ${this.shortCommit(entry.commit_hash)}`;
+            const prNumbers = this.prNumbersForEntry(entry);
+            prNumbers.forEach((prNumber, prIndex) => {
+                if (prIndex > 0) {
+                    prCell.appendChild(document.createTextNode(', '));
+                }
+                const link = document.createElement('a');
+                link.href = `https://github.com/oxcaml/oxcaml/pull/${prNumber}`;
+                link.textContent = `#${prNumber}`;
+                link.target = '_blank';
+                prCell.appendChild(link);
             });
 
             // Create change percentage cell
@@ -148,5 +155,17 @@ class BaseTableManager {
         const dataKey = this.config.dataKey;
         // Default: sum all values
         return Array.from(entry[dataKey].values()).reduce((sum, value) => sum + value, 0);
+    }
+
+    prNumbersForEntry(entry) {
+        const prNumbers = entry.pr_numbers || entry.pr_number || '';
+        return String(prNumbers)
+            .split(',')
+            .map(prNumber => prNumber.trim())
+            .filter(prNumber => prNumber.length > 0);
+    }
+
+    shortCommit(commitHash) {
+        return commitHash ? commitHash.substring(0, 8) : 'unknown';
     }
 }

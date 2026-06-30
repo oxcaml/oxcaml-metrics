@@ -53,6 +53,16 @@ jobs:
           echo "artifact_file=$ARTIFACT_FILE" >> $GITHUB_OUTPUT
           echo "profile_file=$PROFILE_FILE" >> $GITHUB_OUTPUT
 
+      - name: Compute attribution metadata
+        if: steps.check.outputs.should_process == 'true'
+        id: attribution
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/compute_attribution.py \
+            --artifact-sizes "${{ steps.check.outputs.artifact_file }}" \
+            --data-dir data/
+
       - name: Run conversion script
         if: steps.check.outputs.should_process == 'true'
         id: convert
@@ -60,7 +70,9 @@ jobs:
           python3 scripts/convert_metrics.py \
             --artifact-sizes "${{ steps.check.outputs.artifact_file }}" \
             --profiles "${{ steps.check.outputs.profile_file }}" \
-            --output-dir data/
+            --output-dir data/ \
+            --pr-numbers "${{ steps.attribution.outputs.pr_numbers }}" \
+            --comparison-base-commit-hash "${{ steps.attribution.outputs.comparison_base_commit_hash }}"
 
           if [ $? -ne 0 ]; then
             echo "conversion_failed=true" >> $GITHUB_OUTPUT
