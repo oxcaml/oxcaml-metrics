@@ -111,6 +111,24 @@ class BaseChartManager {
         this.createLineChart(chartData.normalized, chartData.raw);
     }
 
+    tooltipTitle(data, index) {
+        const prNumbers = data.prNumberLists
+            ? data.prNumberLists[index]
+            : data.prNumbers[index];
+        const commit = data.commits[index];
+        const timestamp = data.timestamps[index];
+        return `PR(s): ${this.formatPrNumbers(prNumbers)}\nCommit: ${commit.substring(0, 8)}\n${timestamp}`;
+    }
+
+    formatPrNumbers(prNumbers) {
+        return String(prNumbers || '')
+            .split(',')
+            .map(prNumber => prNumber.trim())
+            .filter(prNumber => prNumber.length > 0)
+            .map(prNumber => `#${prNumber}`)
+            .join(', ');
+    }
+
     createAnnotationsForChart(prNumbers) {
         if (!this.versionTags || this.versionTags.size === 0) {
             return {};
@@ -203,10 +221,7 @@ class BaseChartManager {
                         callbacks: {
                             title: (tooltipItems) => {
                                 const index = tooltipItems[0].dataIndex;
-                                const prNumber = data.prNumbers[index];
-                                const commit = data.commits[index];
-                                const timestamp = data.timestamps[index];
-                                return `PR #${prNumber}\nCommit: ${commit.substring(0, 8)}\n${timestamp}`;
+                                return this.tooltipTitle(data, index);
                             },
                             label: (context) => {
                                 const label = context.dataset.label || '';
@@ -358,10 +373,7 @@ class BaseChartManager {
                         callbacks: {
                             title: (tooltipItems) => {
                                 const index = tooltipItems[0].dataIndex;
-                                const prNumber = data.prNumbers[index];
-                                const commit = data.commits[index];
-                                const timestamp = data.timestamps[index];
-                                return `PR #${prNumber}\nCommit: ${commit.substring(0, 8)}\n${timestamp}`;
+                                return this.tooltipTitle(data, index);
                             },
                             label: (context) => {
                                 const label = context.dataset.label || '';

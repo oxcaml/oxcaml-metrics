@@ -31,28 +31,30 @@ def concat_csv_files(year, month):
     print(f"Found {len(input_files)} files to concatenate")
     print(f"Output: {output_file}")
 
-    # Read and concatenate
-    header_written = False
+    # Read and concatenate. Some historical files may have fewer metadata
+    # columns than newer files, so preserve the first file's column order and
+    # append any new columns discovered later.
+    rows = []
+    fieldnames = []
+    seen_fieldnames = set()
+
+    for input_file in input_files:
+        with open(input_file, 'r', newline='') as inf:
+            reader = csv.DictReader(inf)
+            for fieldname in reader.fieldnames or []:
+                if fieldname not in seen_fieldnames:
+                    fieldnames.append(fieldname)
+                    seen_fieldnames.add(fieldname)
+            rows.extend(reader)
+
     rows_written = 0
-
     with open(output_file, 'w', newline='') as outf:
-        writer = None
+        writer = csv.DictWriter(outf, fieldnames=fieldnames)
+        writer.writeheader()
 
-        for input_file in input_files:
-            with open(input_file, 'r', newline='') as inf:
-                reader = csv.reader(inf)
-                header = next(reader)
-
-                # Write header only once
-                if not header_written:
-                    writer = csv.writer(outf)
-                    writer.writerow(header)
-                    header_written = True
-
-                # Write all data rows
-                for row in reader:
-                    writer.writerow(row)
-                    rows_written += 1
+        for row in rows:
+            writer.writerow(row)
+            rows_written += 1
 
     print(f"Successfully wrote {rows_written} rows to {output_file}")
     return 0

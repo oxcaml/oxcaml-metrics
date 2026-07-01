@@ -75,10 +75,7 @@ class TopHeapChartManager extends BaseChartManager {
                         callbacks: {
                             title: (tooltipItems) => {
                                 const index = tooltipItems[0].dataIndex;
-                                const prNumber = data.prNumbers[index];
-                                const commit = data.commits[index];
-                                const timestamp = data.timestamps[index];
-                                return `PR #${prNumber}\nCommit: ${commit.substring(0, 8)}\n${timestamp}`;
+                                return this.tooltipTitle(data, index);
                             },
                             label: (context) => {
                                 const label = context.dataset.label || '';

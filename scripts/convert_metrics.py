@@ -11,11 +11,11 @@ Input formats:
   - profiles-*.tar.gz: compiler profiling data
 
 Output format (data/):
-  timestamp,commit_hash,pr_number,kind,name,value
-  2025-11-18T09:34:49Z,hash,5004,size_in_bytes,opt,336187168
-  2025-11-18T09:34:49Z,hash,5004,time_in_seconds,parsing,1.234
-  2025-11-18T09:34:49Z,hash,5004,alloc_in_bytes,parsing,12345678
-  2025-11-18T09:34:49Z,hash,5004,counter,reload,311
+  timestamp,commit_hash,pr_number,kind,name,value,pr_numbers,comparison_base_commit_hash
+  2025-11-18T09:34:49Z,hash,5004,size_in_bytes,opt,336187168,5004,prevhash
+  2025-11-18T09:34:49Z,hash,5004,time_in_seconds,parsing,1.234,5004,prevhash
+  2025-11-18T09:34:49Z,hash,5004,alloc_in_bytes,parsing,12345678,5004,prevhash
+  2025-11-18T09:34:49Z,hash,5004,counter,reload,311,5004,prevhash
 """
 
 import argparse
@@ -60,6 +60,17 @@ TARGET_EXTENSIONS = [
 
 # Symbolic constant for top-level pass (representing totals across all passes)
 TOP_LEVEL_PASS = '<all>'
+
+OUTPUT_HEADER = [
+    'timestamp',
+    'commit_hash',
+    'pr_number',
+    'kind',
+    'name',
+    'value',
+    'pr_numbers',
+    'comparison_base_commit_hash',
+]
 
 # Key compiler passes to track
 KEY_PASSES = [
@@ -279,6 +290,9 @@ def convert_artifact_sizes(input_path: Path) -> Tuple[Dict[str, str], List[List]
         'timestamp': rows[0]['timestamp'],
         'commit_hash': rows[0]['commit_hash'],
         'pr_number': rows[0]['pr_number'],
+        'pr_numbers': rows[0].get('pr_numbers') or rows[0]['pr_number'],
+        'comparison_base_commit_hash': rows[0].get(
+            'comparison_base_commit_hash', ''),
     }
 
     kind = rows[0]['kind']
@@ -308,7 +322,9 @@ def convert_artifact_sizes(input_path: Path) -> Tuple[Dict[str, str], List[List]
             metadata['pr_number'],
             kind,
             ext,
-            extension_sizes[ext]
+            extension_sizes[ext],
+            metadata['pr_numbers'],
+            metadata['comparison_base_commit_hash'],
         ])
 
     return metadata, metric_rows
@@ -383,7 +399,9 @@ def convert_profiles(input_path: Path, metadata: Dict[str, str]) -> List[List]:
             metadata['pr_number'],
             'time_in_seconds',
             key_pass,
-            f'{pass_data.time:.3f}'
+            f'{pass_data.time:.3f}',
+            metadata['pr_numbers'],
+            metadata['comparison_base_commit_hash'],
         ])
 
     # Write alloc metrics for each key pass
@@ -395,7 +413,9 @@ def convert_profiles(input_path: Path, metadata: Dict[str, str]) -> List[List]:
             metadata['pr_number'],
             'alloc_in_bytes',
             key_pass,
-            pass_data.alloc
+            pass_data.alloc,
+            metadata['pr_numbers'],
+            metadata['comparison_base_commit_hash'],
         ])
 
     # Write top-heap metrics for each key pass
@@ -407,7 +427,9 @@ def convert_profiles(input_path: Path, metadata: Dict[str, str]) -> List[List]:
             metadata['pr_number'],
             'top_heap_in_bytes',
             key_pass,
-            pass_data.top_heap
+            pass_data.top_heap,
+            metadata['pr_numbers'],
+            metadata['comparison_base_commit_hash'],
         ])
 
     # Write absolute-top-heap metrics for each key pass
@@ -419,7 +441,9 @@ def convert_profiles(input_path: Path, metadata: Dict[str, str]) -> List[List]:
             metadata['pr_number'],
             'absolute_top_heap_in_bytes',
             key_pass,
-            pass_data.absolute_top_heap
+            pass_data.absolute_top_heap,
+            metadata['pr_numbers'],
+            metadata['comparison_base_commit_hash'],
         ])
 
     # Write counter metrics (aggregated across all profiles)
@@ -430,7 +454,9 @@ def convert_profiles(input_path: Path, metadata: Dict[str, str]) -> List[List]:
             metadata['pr_number'],
             'counter',
             counter_name,
-            all_counters[counter_name]
+            all_counters[counter_name],
+            metadata['pr_numbers'],
+            metadata['comparison_base_commit_hash'],
         ])
 
     return metric_rows
@@ -458,6 +484,18 @@ def main() -> None:
         required=True,
         help='Directory where the output CSV file will be written'
     )
+    parser.add_argument(
+        '--pr-numbers',
+        type=str,
+        default=None,
+        help='Comma-separated PR numbers included in the comparison range'
+    )
+    parser.add_argument(
+        '--comparison-base-commit-hash',
+        type=str,
+        default='',
+        help='Commit hash for the previous metrics point'
+    )
 
     args = parser.parse_args()
 
@@ -474,6 +512,17 @@ def main() -> None:
 
     # Process artifact sizes (this provides metadata)
     metadata, artifact_rows = convert_artifact_sizes(args.artifact_sizes)
+    if args.pr_numbers:
+        metadata['pr_numbers'] = args.pr_numbers
+    if args.comparison_base_commit_hash:
+        metadata['comparison_base_commit_hash'] = (
+            args.comparison_base_commit_hash)
+
+    # Artifact rows were generated before command-line attribution metadata was
+    # applied. Rewrite the attribution columns rather than reparsing sizes.
+    for row in artifact_rows:
+        row[-2] = metadata['pr_numbers']
+        row[-1] = metadata['comparison_base_commit_hash']
 
     # Process profiles using the same metadata
     profile_rows = convert_profiles(args.profiles, metadata)
@@ -489,7 +538,7 @@ def main() -> None:
     # Write combined output
     with open(output_path, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['timestamp', 'commit_hash', 'pr_number', 'kind', 'name', 'value'])
+        writer.writerow(OUTPUT_HEADER)
         writer.writerows(all_rows)
 
     print(f"Successfully converted to {output_path}")
