@@ -122,7 +122,7 @@ class BaseChartManager {
 
     formatPrNumbers(prNumbers) {
         return String(prNumbers || '')
-            .split(',')
+            .split('/')
             .map(prNumber => prNumber.trim())
             .filter(prNumber => prNumber.length > 0)
             .map(prNumber => `#${prNumber}`)

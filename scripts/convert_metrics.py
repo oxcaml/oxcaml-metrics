@@ -488,7 +488,7 @@ def main() -> None:
         '--pr-numbers',
         type=str,
         default=None,
-        help='Comma-separated PR numbers included in the comparison range'
+        help='Slash-separated PR numbers included in the comparison range'
     )
     parser.add_argument(
         '--comparison-base-commit-hash',

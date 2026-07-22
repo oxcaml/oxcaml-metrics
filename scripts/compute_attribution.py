@@ -142,7 +142,7 @@ def main() -> None:
                   file=sys.stderr)
 
     values = {
-        'pr_numbers': ','.join(pr_numbers),
+        'pr_numbers': '/'.join(pr_numbers),
         'comparison_base_commit_hash': comparison_base_commit_hash,
     }
 

@@ -160,7 +160,7 @@ class BaseTableManager {
     prNumbersForEntry(entry) {
         const prNumbers = entry.pr_numbers || entry.pr_number || '';
         return String(prNumbers)
-            .split(',')
+            .split('/')
             .map(prNumber => prNumber.trim())
             .filter(prNumber => prNumber.length > 0);
     }
