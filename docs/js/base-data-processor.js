@@ -40,6 +40,8 @@ class BaseDataProcessor {
                     timestamp: timestamp,
                     commit_hash: row.commit_hash,
                     pr_number: row.pr_number,
+                    pr_numbers: row.pr_numbers || row.pr_number,
+                    comparison_base_commit_hash: row.comparison_base_commit_hash || '',
                     date: new Date(timestamp)
                 };
                 entry[dataKey] = new Map();
@@ -119,6 +121,8 @@ class BaseDataProcessor {
                 timestamp: entry.timestamp,
                 commit_hash: entry.commit_hash,
                 pr_number: entry.pr_number,
+                pr_numbers: entry.pr_numbers,
+                comparison_base_commit_hash: entry.comparison_base_commit_hash,
                 date: entry.date
             };
             result[dataKey] = normalizedItems;
@@ -164,7 +168,9 @@ class BaseDataProcessor {
             labels: labels,
             datasets: datasets,
             commits: data.map(entry => entry.commit_hash),
+            comparisonBaseCommits: data.map(entry => entry.comparison_base_commit_hash || ''),
             prNumbers: data.map(entry => entry.pr_number),
+            prNumberLists: data.map(entry => entry.pr_numbers || entry.pr_number),
             timestamps: data.map(entry => entry.timestamp)
         };
     }
@@ -193,7 +199,9 @@ class BaseDataProcessor {
             labels: labels,
             datasets: datasets,
             commits: data.map(entry => entry.commit_hash),
+            comparisonBaseCommits: data.map(entry => entry.comparison_base_commit_hash || ''),
             prNumbers: data.map(entry => entry.pr_number),
+            prNumberLists: data.map(entry => entry.pr_numbers || entry.pr_number),
             timestamps: data.map(entry => entry.timestamp)
         };
     }
