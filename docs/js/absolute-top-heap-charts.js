@@ -4,7 +4,7 @@ class AbsoluteTopHeapChartManager extends BaseChartManager {
             stackedBarCanvasId: 'absoluteTopHeapStackedBarChart',
             lineCanvasId: 'absoluteTopHeapLineChart',
             stackedBarTitle: 'Absolute Top Heap by Phase Over Time',
-            lineChartTitle: 'Absolute Top Heap Trends (Normalized to First Non-Zero Value)',
+            lineChartTitle: 'Absolute Top Heap Trends (Normalized to First Visible Non-Zero Value)',
             yAxisLabel: 'Absolute Top Heap (bytes)',
             normalizedYAxisLabel: 'Relative Absolute Top Heap (%)',
             formatValueFn: (value) => this.formatBytes(value),

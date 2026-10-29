@@ -142,7 +142,8 @@ class RatioDataProcessor {
             sumXX += x * x;
         });
 
-        const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+        const denominator = n * sumXX - sumX * sumX;
+        const slope = denominator === 0 ? 0 : (n * sumXY - sumX * sumY) / denominator;
         const intercept = (sumY - slope * sumX) / n;
 
         // Calculate predicted values

@@ -63,8 +63,8 @@ class BaseTableManager {
             // Apply class to the row
             row.className = changeClass;
 
-            // Create PR number cell. When a metrics point covers multiple
-            // source commits, this cell shows all PRs in that compared range.
+            // Show the PRs associated with this measurement. The previous
+            // displayed measurement may be further back when history is filtered.
             const prCell = document.createElement('td');
             prCell.title = `Measured commit ${this.shortCommit(entry.commit_hash)}`;
             const prNumbers = this.prNumbersForEntry(entry);
@@ -101,31 +101,26 @@ class BaseTableManager {
 
             // Check if this PR has a version tag
             if (this.notesLoader && this.notesLoader.versionTags) {
-                const versionTag = this.findVersionTagForPR(entry.pr_number);
-                if (versionTag) {
-                    const versionRow = this.createVersionTagRow(versionTag);
+                const versionTags = this.findVersionTagsForPR(entry.pr_number);
+                if (versionTags.length > 0) {
+                    const versionRow = this.createVersionTagRow(versionTags);
                     this.tableBody.appendChild(versionRow);
                 }
             }
         });
     }
 
-    findVersionTagForPR(prNumber) {
+    findVersionTagsForPR(prNumber) {
         if (!this.notesLoader || !this.notesLoader.versionTags) {
-            return null;
+            return [];
         }
 
-        // Search through version tags to find one matching this PR
-        for (const [versionTag, taggedPR] of this.notesLoader.versionTags) {
-            if (String(taggedPR) === String(prNumber)) {
-                return versionTag;
-            }
-        }
-
-        return null;
+        return Array.from(this.notesLoader.versionTags)
+            .filter(([, taggedPR]) => String(taggedPR) === String(prNumber))
+            .map(([versionTag]) => versionTag);
     }
 
-    createVersionTagRow(versionTag) {
+    createVersionTagRow(versionTags) {
         const row = document.createElement('tr');
         row.className = 'version-tag-row';
 
@@ -135,15 +130,19 @@ class BaseTableManager {
         cell.style.textAlign = 'center';
         cell.style.fontWeight = 'bold';
 
-        // Create a link to the version tag
-        const link = document.createElement('a');
-        link.href = `https://github.com/oxcaml/oxcaml/tree/${versionTag}`;
-        link.textContent = `Version: ${versionTag}`;
-        link.target = '_blank';
-        link.style.color = 'inherit';
-        link.style.textDecoration = 'none';
-
-        cell.appendChild(link);
+        cell.appendChild(document.createTextNode(versionTags.length === 1 ? 'Version: ' : 'Versions: '));
+        versionTags.forEach((versionTag, index) => {
+            if (index > 0) {
+                cell.appendChild(document.createTextNode(', '));
+            }
+            const link = document.createElement('a');
+            link.href = `https://github.com/oxcaml/oxcaml/tree/${versionTag}`;
+            link.textContent = versionTag;
+            link.target = '_blank';
+            link.style.color = 'inherit';
+            link.style.textDecoration = 'none';
+            cell.appendChild(link);
+        });
         row.appendChild(cell);
 
         return row;

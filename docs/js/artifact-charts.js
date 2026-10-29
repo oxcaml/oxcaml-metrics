@@ -9,7 +9,7 @@ class ArtifactChartManager extends BaseChartManager {
             stackedBarCanvasId: 'stackedBarChart',
             lineCanvasId: 'lineChart',
             stackedBarTitle: 'File Sizes by Extension Over Time',
-            lineChartTitle: 'File Size Trends (Normalized to First Non-Zero Value)',
+            lineChartTitle: 'File Size Trends (Normalized to First Visible Non-Zero Value)',
             yAxisLabel: 'File Size (bytes)',
             normalizedYAxisLabel: 'Relative Size (%)',
             formatValueFn: (value) => this.formatBytes(value),

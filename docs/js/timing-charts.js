@@ -4,7 +4,7 @@ class TimingChartManager extends BaseChartManager {
             stackedBarCanvasId: 'timingStackedBarChart',
             lineCanvasId: 'timingLineChart',
             stackedBarTitle: 'Execution Time by Phase Over Time',
-            lineChartTitle: 'Timing Trends (Normalized to First Non-Zero Value)',
+            lineChartTitle: 'Timing Trends (Normalized to First Visible Non-Zero Value)',
             yAxisLabel: 'Time (seconds)',
             normalizedYAxisLabel: 'Relative Time (%)',
             formatValueFn: (value) => this.formatTime(value),

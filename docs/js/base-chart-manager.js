@@ -130,43 +130,51 @@ class BaseChartManager {
     }
 
     createAnnotationsForChart(prNumbers) {
-        if (!this.versionTags || this.versionTags.size === 0) {
+        return BaseChartManager.createVersionAnnotations(this.versionTags, prNumbers);
+    }
+
+    static createVersionAnnotations(versionTags, prNumbers) {
+        if (!versionTags || versionTags.size === 0) {
             return {};
         }
 
-        const annotations = {};
-
-        // Iterate through version tags and find matching PR positions
-        this.versionTags.forEach((prNumber, versionTag) => {
-            const prIndex = prNumbers.findIndex(pr => String(pr) === String(prNumber));
-
-            if (prIndex !== -1) {
-                // Draw line after this PR (between this PR and the next one)
-                const annotationKey = `version-${versionTag}`;
-                annotations[annotationKey] = {
-                    type: 'line',
-                    xMin: prIndex + 0.5,
-                    xMax: prIndex + 0.5,
-                    borderColor: '#e74c3c',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    label: {
-                        display: true,
-                        content: versionTag,
-                        position: 'start',
-                        backgroundColor: 'rgba(231, 76, 60, 0.8)',
-                        color: 'white',
-                        font: {
-                            size: 11,
-                            weight: 'bold'
-                        },
-                        padding: 4,
-                        rotation: -90
-                    }
-                };
+        // Group releases at the same measurement so their labels do not overlap.
+        const tagsByIndex = new Map();
+        versionTags.forEach((prNumber, versionTag) => {
+            const index = prNumbers.findIndex(pr => String(pr) === String(prNumber));
+            if (index !== -1) {
+                if (!tagsByIndex.has(index)) {
+                    tagsByIndex.set(index, []);
+                }
+                tagsByIndex.get(index).push(versionTag);
             }
         });
 
+        const annotations = {};
+        tagsByIndex.forEach((tags, index) => {
+            // Draw line after this PR (between this PR and the next one).
+            annotations[`version-${index}`] = {
+                type: 'line',
+                xMin: index + 0.5,
+                xMax: index + 0.5,
+                borderColor: '#e74c3c',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                label: {
+                    display: true,
+                    content: tags,
+                    position: 'start',
+                    backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                    color: 'white',
+                    font: {
+                        size: 11,
+                        weight: 'bold'
+                    },
+                    padding: 4,
+                    rotation: -90
+                }
+            };
+        });
         return annotations;
     }
 

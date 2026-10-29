@@ -73,6 +73,36 @@ main {
     gap: 30px;
 }
 
+.history-filter {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.history-filter label {
+    font-weight: 500;
+}
+
+.history-filter select {
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    font: inherit;
+}
+
+.history-filter select:focus-visible {
+    outline: 2px solid #1565c0;
+    outline-offset: 2px;
+}
+
+#history-summary,
+.empty-state {
+    color: #666;
+}
+
 .tabs {
     display: flex;
     gap: 0;

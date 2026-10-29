@@ -4,7 +4,7 @@ class AllocationChartManager extends BaseChartManager {
             stackedBarCanvasId: 'allocationStackedBarChart',
             lineCanvasId: 'allocationLineChart',
             stackedBarTitle: 'Allocation by Phase Over Time',
-            lineChartTitle: 'Allocation Trends (Normalized to First Non-Zero Value)',
+            lineChartTitle: 'Allocation Trends (Normalized to First Visible Non-Zero Value)',
             yAxisLabel: 'Allocation (bytes)',
             normalizedYAxisLabel: 'Relative Allocation (%)',
             formatValueFn: (value) => this.formatBytes(value),

@@ -4,7 +4,7 @@ class CounterChartManager extends BaseChartManager {
             stackedBarCanvasId: 'counterStackedBarChart',
             lineCanvasId: 'counterLineChart',
             stackedBarTitle: 'Counter Values Over Time',
-            lineChartTitle: 'Counter Trends (Normalized to First Non-Zero Value)',
+            lineChartTitle: 'Counter Trends (Normalized to First Visible Non-Zero Value)',
             yAxisLabel: 'Counter Value',
             normalizedYAxisLabel: 'Relative Count (%)',
             formatValueFn: (value) => this.formatNumber(value)

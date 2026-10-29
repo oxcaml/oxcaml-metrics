@@ -1,17 +1,78 @@
+// Select whole measurements before computing baselines, deltas, or trends.
+function filterHistory(rawData, range, versionTags) {
+    if (range === 'all' || rawData.length === 0) {
+        return rawData;
+    }
+
+    if (range === 'releases') {
+        const releasePRs = new Set(Array.from(versionTags.values(), String));
+        const timestamps = new Map();
+
+        // DataLoader sorts by timestamp. Keep the first measurement for each
+        // release PR, matching the existing chart annotation positions.
+        rawData.forEach(row => {
+            const pr = String(row.pr_number);
+            if (releasePRs.has(pr) && !timestamps.has(pr)) {
+                timestamps.set(pr, row.timestamp);
+            }
+        });
+        return rawData.filter(row => timestamps.get(String(row.pr_number)) === row.timestamp);
+    }
+
+    const latest = rawData.reduce((time, row) => Math.max(time, Date.parse(row.timestamp)), -Infinity);
+    const cutoff = latest - Number(range) * 24 * 60 * 60 * 1000;
+    return rawData.filter(row => Date.parse(row.timestamp) >= cutoff);
+}
+
+function showMetricData(tabId, hasData) {
+    const tab = document.getElementById(tabId);
+    tab.querySelectorAll('.chart-section').forEach(section => {
+        section.hidden = !hasData;
+    });
+    tab.querySelector('.empty-state').hidden = hasData;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const dataLoader = new DataLoader();
-    const artifactChartManager = new ArtifactChartManager();
-    const artifactTableManager = new ArtifactTableManager();
-    const counterChartManager = new CounterChartManager();
-    const counterTableManager = new CounterTableManager();
-    const allocationChartManager = new AllocationChartManager();
-    const allocationTableManager = new AllocationTableManager();
-    const topHeapChartManager = new TopHeapChartManager();
-    const topHeapTableManager = new TopHeapTableManager();
-    const absoluteTopHeapChartManager = new AbsoluteTopHeapChartManager();
-    const absoluteTopHeapTableManager = new AbsoluteTopHeapTableManager();
-    const timingChartManager = new TimingChartManager();
-    const timingTableManager = new TimingTableManager();
+    const historyRange = document.getElementById('history-range');
+    const views = [
+        {
+            tabId: 'overview',
+            Processor: ArtifactDataProcessor,
+            charts: new ArtifactChartManager(),
+            table: new ArtifactTableManager()
+        },
+        {
+            tabId: 'details',
+            Processor: CounterDataProcessor,
+            charts: new CounterChartManager(),
+            table: new CounterTableManager()
+        },
+        {
+            tabId: 'allocations',
+            Processor: AllocationDataProcessor,
+            charts: new AllocationChartManager(),
+            table: new AllocationTableManager()
+        },
+        {
+            tabId: 'topheap',
+            Processor: TopHeapDataProcessor,
+            charts: new TopHeapChartManager(),
+            table: new TopHeapTableManager()
+        },
+        {
+            tabId: 'absolutetopheap',
+            Processor: AbsoluteTopHeapDataProcessor,
+            charts: new AbsoluteTopHeapChartManager(),
+            table: new AbsoluteTopHeapTableManager()
+        },
+        {
+            tabId: 'timings',
+            Processor: TimingDataProcessor,
+            charts: new TimingChartManager(),
+            table: new TimingTableManager()
+        }
+    ];
     const ratioChartManager = new RatioChartManager();
 
     try {
@@ -25,186 +86,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         await notesLoader.loadNotes();
         await notesLoader.loadVersionTags();
 
-        // Process artifact size data
-        const artifactDataProcessor = new ArtifactDataProcessor(rawData);
-        const processedData = artifactDataProcessor.process();
+        views.forEach(view => view.charts.setVersionTags(notesLoader.versionTags));
+        ratioChartManager.setVersionTags(notesLoader.versionTags);
 
-        // Get chart data for artifact sizes
-        const chartData = artifactDataProcessor.getChartData();
+        function renderHistory() {
+            const visibleData = filterHistory(rawData, historyRange.value, notesLoader.versionTags);
 
-        // Set version tags for chart annotations
-        artifactChartManager.setVersionTags(notesLoader.versionTags);
+            views.forEach(({ tabId, Processor, charts, table }) => {
+                const processor = new Processor(visibleData);
+                const processedData = processor.process();
+                const hasData = processedData.processed.data.length > 0;
 
-        // Create artifact size charts
-        artifactChartManager.createCharts(chartData);
+                // Clear old charts and rows even when the new selection is empty.
+                charts.destroy();
+                table.createTable(processedData, notesLoader);
+                showMetricData(tabId, hasData);
+                if (hasData) {
+                    charts.createCharts(processor.getChartData());
+                    console.log(`${tabId} statistics:`, processor.getSummaryStats());
+                }
+            });
 
-        // Create artifact size table with notes
-        artifactTableManager.createTable(processedData, notesLoader);
-
-        // Display summary stats for artifact sizes
-        const stats = artifactDataProcessor.getSummaryStats();
-        if (stats) {
-            console.log('Artifact Size Statistics:', stats);
-        }
-
-        // Process counter data
-        const counterDataProcessor = new CounterDataProcessor(rawData);
-        const counterProcessedData = counterDataProcessor.process();
-
-        // Check if we have counter data
-        if (counterProcessedData.processed.data.length > 0) {
-            // Get chart data for counters
-            const counterChartData = counterDataProcessor.getChartData();
-
-            // Set version tags for counter chart annotations
-            counterChartManager.setVersionTags(notesLoader.versionTags);
-
-            // Create counter charts
-            counterChartManager.createCharts(counterChartData);
-
-            // Create counter table with notes
-            counterTableManager.createTable(counterProcessedData, notesLoader);
-
-            // Display summary stats for counters
-            const counterStats = counterDataProcessor.getSummaryStats();
-            if (counterStats) {
-                console.log('Counter Statistics:', counterStats);
+            // Derived trends must also be recomputed from visible measurements.
+            const ratioDataProcessor = new RatioDataProcessor(visibleData);
+            const ratioData = ratioDataProcessor.process();
+            ratioChartManager.destroy();
+            showMetricData('ratio', ratioData.length > 0);
+            if (ratioData.length > 0) {
+                ratioChartManager.createChart(ratioDataProcessor.getChartData());
+                console.log('Ratio Statistics:', ratioDataProcessor.getSummaryStats());
             }
-        } else {
-            console.warn('No counter data available');
+
+            const timestamps = [...new Set(visibleData.map(row => row.timestamp))];
+            const summary = document.getElementById('history-summary');
+            summary.textContent = timestamps.length === 0
+                ? 'No matching measurements'
+                : `${timestamps.length} measurements · ${timestamps[0].slice(0, 10)} – ${timestamps[timestamps.length - 1].slice(0, 10)}`;
         }
 
-        // Process allocation data
-        const allocationDataProcessor = new AllocationDataProcessor(rawData);
-        const allocationProcessedData = allocationDataProcessor.process();
-
-        // Check if we have allocation data
-        if (allocationProcessedData.processed.data.length > 0) {
-            // Get chart data for allocations
-            const allocationChartData = allocationDataProcessor.getChartData();
-
-            // Set version tags for allocation chart annotations
-            allocationChartManager.setVersionTags(notesLoader.versionTags);
-
-            // Create allocation charts
-            allocationChartManager.createCharts(allocationChartData);
-
-            // Create allocation table with notes
-            allocationTableManager.createTable(allocationProcessedData, notesLoader);
-
-            // Display summary stats for allocations
-            const allocationStats = allocationDataProcessor.getSummaryStats();
-            if (allocationStats) {
-                console.log('Allocation Statistics:', allocationStats);
-            }
-        } else {
-            console.warn('No allocation data available');
-        }
-
-        // Process top-heap data
-        const topHeapDataProcessor = new TopHeapDataProcessor(rawData);
-        const topHeapProcessedData = topHeapDataProcessor.process();
-
-        // Check if we have top-heap data
-        if (topHeapProcessedData.processed.data.length > 0) {
-            // Get chart data for top-heap
-            const topHeapChartData = topHeapDataProcessor.getChartData();
-
-            // Set version tags for top-heap chart annotations
-            topHeapChartManager.setVersionTags(notesLoader.versionTags);
-
-            // Create top-heap charts
-            topHeapChartManager.createCharts(topHeapChartData);
-
-            // Create top-heap table with notes
-            topHeapTableManager.createTable(topHeapProcessedData, notesLoader);
-
-            // Display summary stats for top-heap
-            const topHeapStats = topHeapDataProcessor.getSummaryStats();
-            if (topHeapStats) {
-                console.log('Top Heap Statistics:', topHeapStats);
-            }
-        } else {
-            console.warn('No top-heap data available');
-        }
-
-        // Process absolute-top-heap data
-        const absoluteTopHeapDataProcessor = new AbsoluteTopHeapDataProcessor(rawData);
-        const absoluteTopHeapProcessedData = absoluteTopHeapDataProcessor.process();
-
-        // Check if we have absolute-top-heap data
-        if (absoluteTopHeapProcessedData.processed.data.length > 0) {
-            // Get chart data for absolute-top-heap
-            const absoluteTopHeapChartData = absoluteTopHeapDataProcessor.getChartData();
-
-            // Set version tags for absolute-top-heap chart annotations
-            absoluteTopHeapChartManager.setVersionTags(notesLoader.versionTags);
-
-            // Create absolute-top-heap charts
-            absoluteTopHeapChartManager.createCharts(absoluteTopHeapChartData);
-
-            // Create absolute-top-heap table with notes
-            absoluteTopHeapTableManager.createTable(absoluteTopHeapProcessedData, notesLoader);
-
-            // Display summary stats for absolute-top-heap
-            const absoluteTopHeapStats = absoluteTopHeapDataProcessor.getSummaryStats();
-            if (absoluteTopHeapStats) {
-                console.log('Absolute Top Heap Statistics:', absoluteTopHeapStats);
-            }
-        } else {
-            console.warn('No absolute-top-heap data available');
-        }
-
-        // Process timing data
-        const timingDataProcessor = new TimingDataProcessor(rawData);
-        const timingProcessedData = timingDataProcessor.process();
-
-        // Check if we have timing data
-        if (timingProcessedData.processed.data.length > 0) {
-            // Get chart data for timings
-            const timingChartData = timingDataProcessor.getChartData();
-
-            // Set version tags for timing chart annotations
-            timingChartManager.setVersionTags(notesLoader.versionTags);
-
-            // Create timing charts
-            timingChartManager.createCharts(timingChartData);
-
-            // Create timing table with notes
-            timingTableManager.createTable(timingProcessedData, notesLoader);
-
-            // Display summary stats for timings
-            const timingStats = timingDataProcessor.getSummaryStats();
-            if (timingStats) {
-                console.log('Timing Statistics:', timingStats);
-            }
-        } else {
-            console.warn('No timing data available');
-        }
-
-        // Process ratio data (time per instruction)
-        const ratioDataProcessor = new RatioDataProcessor(rawData);
-        const ratioProcessedData = ratioDataProcessor.process();
-
-        // Check if we have ratio data
-        if (ratioProcessedData.length > 0) {
-            // Get chart data for ratio
-            const ratioChartData = ratioDataProcessor.getChartData();
-
-            // Set version tags for ratio chart annotations
-            ratioChartManager.setVersionTags(notesLoader.versionTags);
-
-            // Create ratio chart
-            ratioChartManager.createChart(ratioChartData);
-
-            // Display summary stats for ratio
-            const ratioStats = ratioDataProcessor.getSummaryStats();
-            if (ratioStats) {
-                console.log('Ratio Statistics:', ratioStats);
-            }
-        } else {
-            console.warn('No ratio data available');
-        }
+        renderHistory();
+        historyRange.disabled = false;
+        historyRange.addEventListener('change', renderHistory);
 
     } catch (error) {
         console.error('Failed to load and display data:', error);
@@ -216,9 +138,4 @@ document.addEventListener('DOMContentLoaded', async () => {
             statusElement.className = 'status error';
         }
     }
-});
-
-// Handle window resize
-window.addEventListener('resize', () => {
-    // Charts will automatically resize due to responsive: true option
 });
