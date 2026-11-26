@@ -55,18 +55,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             table: new AllocationTableManager()
         },
         {
-            tabId: 'topheap',
-            Processor: TopHeapDataProcessor,
-            charts: new TopHeapChartManager(),
-            table: new TopHeapTableManager()
-        },
-        {
-            tabId: 'absolutetopheap',
-            Processor: AbsoluteTopHeapDataProcessor,
-            charts: new AbsoluteTopHeapChartManager(),
-            table: new AbsoluteTopHeapTableManager()
-        },
-        {
             tabId: 'timings',
             Processor: TimingDataProcessor,
             charts: new TimingChartManager(),
